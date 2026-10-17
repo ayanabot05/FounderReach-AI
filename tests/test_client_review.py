@@ -644,3 +644,151 @@ def test_sr6_live_fetch_makes_zero_external_writes_and_zero_spend(tmp_path, monk
         ])
 
 
+def test_report_includes_checks_performed_robots_sitemap_and_observed_page_fields(tmp_path, monkeypatch):
+    forbid_network(monkeypatch)
+    jsonld = json.dumps({
+        "@context": "https://schema.org",
+        "@graph": [
+            {"@type": "Organization", "name": "Example Business"},
+            {"@type": ["SoftwareApplication", "WebApplication"], "name": "Example Business"},
+        ],
+    })
+    html_body = (
+        "<html><head><title>Example Business — Appointment Scheduling</title>"
+        "<meta name='description' content='Example Business is appointment scheduling software for small businesses.'>"
+        "<link rel='canonical' href='https://example.com/'>"
+        f"<script type='application/ld+json'>{jsonld}</script></head>"
+        "<body><h1>Example Business appointment scheduling</h1>"
+        "<p>Example Business provides appointment scheduling software for small businesses to prevent missed appointments.</p>"
+        "</body></html>"
+    )
+    permission, fixtures = inputs(
+        tmp_path,
+        fixture_change=lambda f: f["pages"]["https://example.com/"].update({"body": html_body}),
+    )
+    result = run_client_review(
+        profile("https://example.com/"),
+        permission_path=permission,
+        fixture_path=fixtures,
+    )
+    _, after_s1 = result.report.split("## Section 1: Site improvements\n", 1)
+    section_1, _ = after_s1.split("\n## Section 2: Acquisition action\n", 1)
+
+    # robots.txt and sitemap.xml status
+    assert "robots.txt status (https://example.com/robots.txt): observed (HTTP 200 text/plain; crawl rules parsed; approved URLs allowed)." in section_1
+    assert "Sitemap status (https://example.com/sitemap.xml): observed XML sitemap (1 URL(s) listed; all audited pages listed)." in section_1
+
+    # Observed canonical, meta description, H1 and JSON-LD types
+    assert "fixture title: Example Business — Appointment Scheduling;" in section_1
+    assert "canonical: https://example.com/;" in section_1
+    assert "meta description: Example Business is appointment scheduling software for small businesses.;" in section_1
+    assert "H1 (1): Example Business appointment scheduling;" in section_1
+    assert "JSON-LD types: Organization, SoftwareApplication, WebApplication." in section_1
+
+    # Checks performed list with pass/finding states
+    assert "Checks performed:" in section_1
+    for check_line in (
+        "Check — robots.txt directives: `pass`.",
+        "Check — XML sitemap availability and coverage: `pass`.",
+        "Check — Page accessibility (HTTP status and HTML content-type): `pass`.",
+        "Check — Page indexability (noindex meta and X-Robots-Tag): `pass`.",
+        "Check — Canonical link tag: `pass`.",
+        "Check — Title and meta description: `pass`.",
+        "Check — Primary H1 heading structure: `pass`.",
+        "Check — JSON-LD structured data: `pass`.",
+        "Check — AEO direct-answer and claim consistency: `pass`.",
+        "Check — GEO entity and schema readiness: `finding`.",
+    ):
+        assert check_line in section_1
+
+
+def test_aeo_and_geo_findings_shown_in_section_1_as_website_observations_without_acquisition_claims(tmp_path, monkeypatch):
+    forbid_network(monkeypatch)
+    html_body = (
+        "<html><head><title>Unrelated Portal</title>"
+        "<link rel='canonical' href='https://example.com/'></head>"
+        "<body><h1>Welcome</h1>"
+        "<h2>How does reminder setup work across calendar devices?</h2>"
+        "<p>Reminder setup works across calendar devices automatically in two minutes with our 100% guaranteed platform.</p>"
+        "</body></html>"
+    )
+    permission, fixtures = inputs(
+        tmp_path,
+        fixture_change=lambda f: f["pages"]["https://example.com/"].update({"body": html_body}),
+    )
+    attestation = tmp_path / "attestations.json"
+    attestation.write_text(json.dumps([
+        {
+            "native_id": "q-sync",
+            "excerpt": "How do we prevent double-booked slots across clinic rooms?",
+            "claim": "Teams ask how to prevent double-booked slots across clinic rooms?",
+            "minimized_by_founder": True,
+        },
+        {
+            "native_id": "q-remind",
+            "excerpt": "How does reminder setup work across calendar devices?",
+            "claim": "How does reminder setup work across calendar devices?",
+            "minimized_by_founder": True,
+        },
+    ]), encoding="utf-8")
+
+    result = run_client_review(
+        profile("https://example.com/"),
+        permission_path=permission,
+        fixture_path=fixtures,
+        attestations_path=attestation,
+    )
+    _, after_s1 = result.report.split("## Section 1: Site improvements\n", 1)
+    section_1, section_2 = after_s1.split("\n## Section 2: Acquisition action\n", 1)
+
+    # Checks performed reflects finding vs pass accurately
+    assert "Check — Title and meta description: `finding`." in section_1
+    assert "Check — JSON-LD structured data: `finding`." in section_1
+    assert "Check — AEO direct-answer and claim consistency: `finding`." in section_1
+    assert "Check — GEO entity and schema readiness: `finding`." in section_1
+    assert "Check — Canonical link tag: `pass`." in section_1
+
+    # AEO findings and GEO readiness findings are rendered in Section 1
+    assert "AEO (`faq_schema_suitability`):" in section_1
+    assert "AEO (`unsupported_answer_claim`):" in section_1
+    assert "AEO (`missing_page`):" in section_1
+    assert "GEO (`brand_name_mismatch`):" in section_1
+    assert "GEO (`missing_organization_schema`):" in section_1
+    assert "GEO (`missing_website_schema`):" in section_1
+    assert "GEO (`uncited_factual_claim`):" in section_1
+
+    # Every bullet in Section 1 is labeled website observation
+    bullets_s1 = [line for line in section_1.splitlines() if line.startswith("- ")]
+    assert bullets_s1
+    assert all("website observation; offline fixture" in line for line in bullets_s1)
+
+    # Section 1 never reads as an acquisition recommendation and never makes traffic/ranking/conversion/customer claims
+    lower_s1 = section_1.lower()
+    for forbidden in ("traffic", "ranking", "customer", "customers", "conversion", "conversions",
+                      "acquisition", "outreach", "channel", "recommend", "recommendation",
+                      "founder-attested", "double-booked slots across clinic rooms"):
+        assert forbidden not in lower_s1
+
+    # All source-record links resolve to anchors in the report
+    anchors = set(re.findall(r'<a id="([a-z0-9-]+)"', result.report))
+    links = set(re.findall(r'\[Source record\]\(#([a-z0-9-]+)\)', result.report))
+    assert links and links <= anchors
+    assert result.decision_status == "no_eligible_action"
+    assert "Primary recommendation: none yet." in section_2
+
+
+def test_section_2_includes_what_to_bring_next_and_preserves_none_yet_outcome(tmp_path, monkeypatch):
+    forbid_network(monkeypatch)
+    result = run_client_review(profile())
+    _, after_s1 = result.report.split("## Section 1: Site improvements\n", 1)
+    _, section_2 = after_s1.split("\n## Section 2: Acquisition action\n", 1)
+
+    assert "Status: `no_eligible_action`. The existing M4 rules were used unchanged." in section_2
+    assert "Primary recommendation: none yet. Eligible demand evidence is insufficient for an acquisition action." in section_2
+    assert "What to bring next:" in section_2
+    assert (
+        "Paste 3 to 5 real customer questions or complaints with no names or contact details, "
+        "labeled **founder-attested**"
+    ) in section_2
+
+

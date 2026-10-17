@@ -250,6 +250,24 @@ def _md(value: object) -> str:
     return re.sub(r"([\\`*_{}\[\]()#+!|])", r"\\\1", escaped)
 
 
+def _jsonld_types(blocks: list[dict]) -> list[str]:
+    """Extract distinct @type strings from parsed JSON-LD blocks (including @graph items)."""
+    types: list[str] = []
+    for block in blocks:
+        if not isinstance(block, dict):
+            continue
+        items = block.get("@graph") if isinstance(block.get("@graph"), list) else [block]
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            raw_type = item.get("@type")
+            values = raw_type if isinstance(raw_type, list) else ([raw_type] if raw_type else [])
+            for val in values:
+                if isinstance(val, str) and val.strip() and val.strip() not in types:
+                    types.append(val.strip())
+    return types
+
+
 def _report(profile: ProductProfile, observations: list[EvidenceObservation], content, decision,
             *, site_evidence_mode: str = "unknown") -> str:
     profile_ref = _record_id("profile", profile.identifier, str(profile.version))
@@ -279,20 +297,106 @@ def _report(profile: ProductProfile, observations: list[EvidenceObservation], co
         "",
     ]
     if content:
+        site_origin = (
+            origin(offline_public_url(str(profile.website)))
+            if profile.website is not None
+            else (origin(content.site.pages[0].url) if content.site.pages else "")
+        )
+        robots_url = f"{site_origin}/robots.txt"
+        sitemap_url = f"{site_origin}/sitemap.xml"
+        site_codes = {f.code for f in content.site.findings}
+        has_pages = bool(content.site.pages)
+
         for url, error in content.site.fetch_errors.items():
             if error == "MissingFixtureError":
                 lines.append(f"- Fixture data for {_md(url)}: UNKNOWN; no response was supplied.")
             else:
                 lines.append(f"- **{site_label}:** Fetch error for {_md(url)}: `{_md(error)}`.")
+
+        robots_err = content.site.fetch_errors.get(robots_url)
+        if robots_err == "MissingFixtureError":
+            robots_status = "UNKNOWN (no robots.txt response supplied)"
+            robots_check = "unknown"
+        elif robots_err:
+            robots_status = f"unavailable (`{_md(robots_err)}`)"
+            robots_check = "finding"
+        elif "robots_blocked" in site_codes:
+            robots_status = "observed (crawl rules parsed; one or more approved URLs disallowed)"
+            robots_check = "finding"
+        else:
+            robots_status = "observed (HTTP 200 text/plain; crawl rules parsed; approved URLs allowed)"
+            robots_check = "pass"
+        lines.append(f"- **{site_label}:** robots.txt status ({_md(robots_url)}): {robots_status}.")
+
+        sitemap_err = content.site.fetch_errors.get(sitemap_url)
+        if sitemap_err == "MissingFixtureError":
+            sitemap_status = "UNKNOWN (no sitemap.xml response supplied)"
+            sitemap_check = "unknown"
+        elif sitemap_err:
+            sitemap_status = f"unavailable (`{_md(sitemap_err)}`)"
+            sitemap_check = "finding"
+        elif "missing_sitemap" in site_codes:
+            sitemap_status = "finding (`missing_sitemap`; sitemap unavailable or returned no URLs)"
+            sitemap_check = "finding"
+        else:
+            unlisted = sum(1 for f in content.site.findings if f.code == "sitemap_omission")
+            sitemap_status = (
+                f"observed XML sitemap ({len(content.site.sitemap_urls)} URL(s) listed"
+                + (f"; {unlisted} audited page(s) missing from sitemap)" if unlisted else "; all audited pages listed)")
+            )
+            sitemap_check = "finding" if unlisted else "pass"
+        lines.append(f"- **{site_label}:** Sitemap status ({_md(sitemap_url)}): {sitemap_status}.")
+
+        title_label = "observed title" if live_mode else "fixture title"
         for page in content.site.pages:
             ref = _record_id("page", page.url)
+            canon_text = _md(page.canonical or "none")
+            desc_text = _md(page.description or "none")
+            h1s = [text for tag, text in page.headings if tag == "h1"]
+            h1_text = ", ".join(_md(h) for h in h1s) if h1s else "none"
+            jtypes = _jsonld_types(page.jsonld)
+            jtypes_text = ", ".join(_md(t) for t in jtypes) if jtypes else "none"
             lines.append(
                 f'- <a id="{ref}"></a> **{site_label}** `{ref}`: {_md(page.url)}; '
-                f'observed title: {_md(page.title or "UNKNOWN")}.'
-                if live_mode else
-                f'- <a id="{ref}"></a> **{site_label}** `{ref}`: {_md(page.url)}; '
-                f'fixture title: {_md(page.title or "UNKNOWN")}.'
+                f'{title_label}: {_md(page.title or "UNKNOWN")}; '
+                f'canonical: {canon_text}; '
+                f'meta description: {desc_text}; '
+                f'H1 ({len(h1s)}): {h1_text}; '
+                f'JSON-LD types: {jtypes_text}.'
             )
+
+        def _page_check(codes: set[str]) -> str:
+            if site_codes & codes:
+                return "finding"
+            return "pass" if has_pages else "unknown"
+
+        checks = [
+            ("robots.txt directives", robots_check),
+            ("XML sitemap availability and coverage", sitemap_check),
+            (
+                "Page accessibility (HTTP status and HTML content-type)",
+                "finding"
+                if (site_codes & {"inaccessible_page"})
+                else ("pass" if has_pages else "unknown"),
+            ),
+            ("Page indexability (noindex meta and X-Robots-Tag)", _page_check({"noindex"})),
+            ("Canonical link tag", _page_check({"canonical"})),
+            ("Title and meta description", _page_check({"metadata"})),
+            ("Primary H1 heading structure", _page_check({"heading_structure"})),
+            ("JSON-LD structured data", _page_check({"invalid_jsonld", "missing_structured_data"})),
+            (
+                "AEO direct-answer and claim consistency",
+                "finding" if content.aeo.findings else ("pass" if has_pages else "unknown"),
+            ),
+            (
+                "GEO entity and schema readiness",
+                "finding" if content.geo.readiness_findings else ("pass" if has_pages else "unknown"),
+            ),
+        ]
+        lines.append("Checks performed:")
+        for check_name, check_state in checks:
+            lines.append(f"- **{site_label}:** Check — {check_name}: `{check_state}`.")
+
         for finding in content.site.findings:
             ref = _record_id("finding", finding.code, finding.affected_url, finding.observed_evidence)
             lines.append(
@@ -305,11 +409,50 @@ def _report(profile: ProductProfile, observations: list[EvidenceObservation], co
                 f"{_md(finding.affected_url)}. Suggested technical change: {_md(finding.suggested_correction)}. "
                 f"[Source record](#{ref})."
             )
-        if not content.site.findings:
+        _aeo_problems = {
+            "missing_page": "Observed question has no matching page in the approved site inventory",
+            "missing_direct_answer": "Matching page does not state a direct answer to the observed question",
+            "faq_schema_suitability": "Page answers a question directly without FAQPage structured data",
+            "contradictory_answer": "Page statement conflicts with an observed claim",
+            "unsupported_answer_claim": "Page paragraph contains an unverified guarantee or numeric claim",
+        }
+        for finding in content.aeo.findings:
+            target_url = finding.affected_url or site_origin
+            ref = _record_id("finding-aeo", finding.code, target_url, *finding.observation_ids)
+            problem_text = _aeo_problems.get(finding.code, f"AEO check {finding.code}")
+            basis = (
+                "No matching answer-first page or direct answer observed in audited site HTML"
+                if finding.code in {"missing_page", "missing_direct_answer"}
+                else _md(finding.observed_evidence or "UNKNOWN")
+            )
+            lines.append(
+                f'- <a id="{ref}"></a> **{site_label}** `{ref}`: '
+                f'{_md(target_url)}; `{finding.code}`; '
+                f'recorded basis: {basis}.'
+            )
+            lines.append(
+                f"- **{site_label}:** AEO (`{finding.code}`): {_md(problem_text)} at "
+                f"{_md(target_url)}. Suggested technical change: {_md(finding.recommendation)}. "
+                f"[Source record](#{ref})."
+            )
+        for finding in content.geo.readiness_findings:
+            target_url = finding.affected_url or site_origin
+            ref = _record_id("finding-geo", finding.code, target_url, finding.observed_evidence)
+            lines.append(
+                f'- <a id="{ref}"></a> **{site_label}** `{ref}`: '
+                f'{_md(target_url)}; `{finding.code}`; '
+                f'recorded basis: {_md(finding.observed_evidence or "UNKNOWN")}.'
+            )
+            lines.append(
+                f"- **{site_label}:** GEO (`{finding.code}`): {_md(finding.problem)} at "
+                f"{_md(target_url)}. Suggested technical change: {_md(finding.suggested_correction)}. "
+                f"[Source record](#{ref})."
+            )
+        if not (content.site.findings or content.aeo.findings or content.geo.readiness_findings):
             page_refs = ", ".join(f"[Source record](#{_record_id('page', page.url)})"
                                   for page in content.site.pages)
             lines.append(
-                f"- **{site_label}:** The bounded site audit generated no site findings; "
+                f"- **{site_label}:** The bounded site audit generated no site, AEO or GEO findings; "
                 + ("unapproved pages were not inspected. " if live_mode else "live website condition is UNKNOWN. ")
                 + (page_refs or "No page record is available.")
             )
@@ -346,6 +489,11 @@ def _report(profile: ProductProfile, observations: list[EvidenceObservation], co
         "- Verified channel permission and zero-spend eligibility for an acquisition placement: missing.",
         "- Visits, conversions, customers and causal impact: UNKNOWN; none were measured.",
         "- No publishing, outreach, purchase, production write or external action occurred.",
+        "",
+        "What to bring next:",
+        "- Paste 3 to 5 real customer questions or complaints with no names or contact details, labeled **founder-attested** (via `--attestations` with `minimized_by_founder: true`).",
+        "- Include the exact wording of the recurring question or pain point so AEO checks can test whether your approved pages answer it directly.",
+        "- Keep personal identifiers out (no emails, phone numbers, @handles, profile URLs, or personal names); M4 acquisition actions remain `none yet` until independent demand verification exists.",
         "",
         "Founder-attested context (self-declared, not verified demand):",
         (f'- <a id="{profile_ref}"></a> **founder-attested** `{profile_ref}`: '
