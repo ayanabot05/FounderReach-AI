@@ -246,3 +246,73 @@ def test_untrusted_attestation_markdown_is_inert(tmp_path):
     assert "![tracker]" not in report
     assert "<script>" not in report
     assert "founder-attested" in report
+
+
+def test_section_1_site_improvements_never_reads_as_acquisition_recommendation(tmp_path, monkeypatch):
+    forbid_network(monkeypatch)
+    permission, fixtures = inputs(tmp_path)
+    attestation = tmp_path / "attestations.json"
+    attestation.write_text(json.dumps([{
+        "native_id": "att-1",
+        "excerpt": "Manual reminders cause missed bookings.",
+        "claim": "Founders report manual reminder overhead.",
+        "minimized_by_founder": True,
+    }]), encoding="utf-8")
+    result = run_client_review(
+        profile("https://example.com/"),
+        permission_path=permission,
+        fixture_path=fixtures,
+        attestations_path=attestation,
+    )
+    headings = re.findall(r"^## .+$", result.report, flags=re.MULTILINE)
+    assert headings == ["## Section 1: Site improvements", "## Section 2: Acquisition action"]
+
+    _, after_s1 = result.report.split("## Section 1: Site improvements\n", 1)
+    section_1, section_2 = after_s1.split("\n## Section 2: Acquisition action\n", 1)
+
+    bullets_s1 = [line for line in section_1.splitlines() if line.startswith("- ")]
+    assert bullets_s1
+    assert all("website observation; offline fixture" in line for line in bullets_s1)
+
+    lower_s1 = section_1.lower()
+    for forbidden in ("traffic", "ranking", "customer", "customers", "conversion", "conversions",
+                      "acquisition", "outreach", "channel", "recommend", "recommendation",
+                      "founder-attested", "manual reminder overhead"):
+        assert forbidden not in lower_s1
+
+    assert "Status: `no_eligible_action`. The existing M4 rules were used unchanged." in section_2
+    assert "Primary recommendation: none yet." in section_2
+    assert "Evidence still missing:" in section_2
+
+
+def test_founder_attested_text_never_appears_as_verified_demand(tmp_path, monkeypatch):
+    forbid_network(monkeypatch)
+    permission, fixtures = inputs(tmp_path)
+    claim_text = "Teams report losing bookings when follow-ups are manual."
+    attestation = tmp_path / "attestations.json"
+    attestation.write_text(json.dumps([{
+        "native_id": "att-demand-check",
+        "excerpt": "We lose bookings when follow-ups are manual.",
+        "claim": claim_text,
+        "minimized_by_founder": True,
+    }]), encoding="utf-8")
+    result = run_client_review(
+        profile("https://example.com/"),
+        permission_path=permission,
+        fixture_path=fixtures,
+        attestations_path=attestation,
+    )
+    _, after_s1 = result.report.split("## Section 1: Site improvements\n", 1)
+    section_1, section_2 = after_s1.split("\n## Section 2: Acquisition action\n", 1)
+
+    assert claim_text not in section_1
+    claim_lines = [line for line in section_2.splitlines() if claim_text in line]
+    assert len(claim_lines) == 2
+    for line in claim_lines:
+        assert "**founder-attested" in line
+        assert ("independently verified: no; verified demand: no." in line
+                or "This is not independently verified demand." in line)
+    assert "- Customer-demand evidence: UNKNOWN; no independently verified demand observations were supplied." in section_2
+    assert "- Independent customer demand: UNKNOWN; founder attestations are not source verification." in section_2
+    assert result.decision_status == "no_eligible_action"
+

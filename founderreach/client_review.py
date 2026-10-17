@@ -177,68 +177,100 @@ def _md(value: object) -> str:
 
 def _report(profile: ProductProfile, observations: list[EvidenceObservation], content, decision) -> str:
     profile_ref = _record_id("profile", profile.identifier, str(profile.version))
-    lines = [f"# Client review: {_md(profile.name)}", "",
-             f"Profile: **founder-attested** for this local review. [Source record](#{profile_ref}).",
-             "This is an offline review. Any website observations below come only from supplied HTML fixtures.",
-             "No live website or demand source was fetched. CONFIRM is a self-declaration, not identity verification.", "",
-             "## Source records", "",
-             f'- <a id="{profile_ref}"></a> **founder-attested** `{profile_ref}`: '
-             f'{_md(profile.name)}; {_md(profile.description)}; '
-             f'website: {_md(profile.website or "none")}. '
-             'Business details were confirmed for this review, not independently verified.']
+    lines = [
+        f"# Client review: {_md(profile.name)}",
+        "",
+        f"Profile: **founder-attested** for this local review. [Source record](#{profile_ref}).",
+        "This is an offline review. Any website observations below come only from supplied HTML fixtures.",
+        "No live website or demand source was fetched. CONFIRM is a self-declaration, not identity verification.",
+        "",
+        "## Section 1: Site improvements",
+        "",
+        "Findings below come from observed site evidence only (offline HTML and metadata fixtures).",
+        "",
+    ]
     if content:
         for url, error in content.site.fetch_errors.items():
             if error == "MissingFixtureError":
-                lines.append(f'- Fixture data for {_md(url)}: UNKNOWN; no response was supplied.')
+                lines.append(f"- Fixture data for {_md(url)}: UNKNOWN; no response was supplied.")
         for page in content.site.pages:
             ref = _record_id("page", page.url)
-            lines.append(f'- <a id="{ref}"></a> **website observation; offline fixture** `{ref}`: {_md(page.url)}; '
-                         f'fixture title: {_md(page.title or "UNKNOWN")}.')
+            lines.append(
+                f'- <a id="{ref}"></a> **website observation; offline fixture** `{ref}`: {_md(page.url)}; '
+                f'fixture title: {_md(page.title or "UNKNOWN")}.'
+            )
         for finding in content.site.findings:
             ref = _record_id("finding", finding.code, finding.affected_url, finding.observed_evidence)
-            lines.append(f'- <a id="{ref}"></a> **website observation; offline fixture** `{ref}`: '
-                         f'{_md(finding.affected_url)}; `{finding.code}`; '
-                         f'recorded basis: {_md(finding.observed_evidence or "UNKNOWN")}.')
-    else:
-        lines.append("- Website observation: UNKNOWN; no website was supplied.")
-    for item in observations:
-        lines.append(f'- <a id="{item.observation_id}"></a> **founder-attested** `{item.observation_id}` '
-                     f': {_md(item.claim)} Source record: `{item.source_id}`; independently verified: no.')
-    if not observations:
-        lines.append("- Customer-demand evidence: UNKNOWN; no observations were supplied.")
-    lines.extend(["", "## Findings", ""])
-    if content:
-        for finding in content.site.findings:
-            ref = _record_id("finding", finding.code, finding.affected_url, finding.observed_evidence)
-            lines.append(f'- **website observation; offline fixture:** {_md(finding.problem)} at '
-                         f'{_md(finding.affected_url)}. [Source record](#{ref}).')
+            lines.append(
+                f'- <a id="{ref}"></a> **website observation; offline fixture** `{ref}`: '
+                f'{_md(finding.affected_url)}; `{finding.code}`; '
+                f'recorded basis: {_md(finding.observed_evidence or "UNKNOWN")}.'
+            )
+            lines.append(
+                f"- **website observation; offline fixture:** {_md(finding.problem)} at "
+                f"{_md(finding.affected_url)}. Suggested technical change: {_md(finding.suggested_correction)}. "
+                f"[Source record](#{ref})."
+            )
         if not content.site.findings:
             page_refs = ", ".join(f"[Source record](#{_record_id('page', page.url)})"
                                   for page in content.site.pages)
-            lines.append("- The bounded fixture audit generated no site findings; live website condition is UNKNOWN. "
-                         + (page_refs or "No page record is available."))
+            lines.append(
+                "- **website observation; offline fixture:** The bounded fixture audit generated no site findings; "
+                "live website condition is UNKNOWN. " + (page_refs or "No page record is available.")
+            )
     else:
+        lines.append("- Website observation: UNKNOWN; no website was supplied.")
         lines.append(f"- Website findings: UNKNOWN; no website was supplied. [Source record](#{profile_ref}).")
-    for item in observations:
-        lines.append(f'- **founder-attested:** {_md(item.claim)} '
-                     f'[Source record](#{item.observation_id}). This is not independently verified demand.')
-    lines.extend(["", "## M4 decision", "",
-                  f"Status: `{decision.status}`. The existing M4 rules were used unchanged.",
-                  f"Input profile: [Source record](#{profile_ref})."])
+
+    lines.extend([
+        "",
+        "## Section 2: Acquisition action",
+        "",
+        f"Status: `{decision.status}`. The existing M4 rules were used unchanged.",
+        f"Input profile: [Source record](#{profile_ref}).",
+    ])
     for item in observations:
         lines.append(f"Input attestation: [Source record](#{item.observation_id}).")
     if decision.primary is None:
-        lines.append("Primary recommendation: none. Eligible demand evidence is insufficient for an acquisition action.")
+        lines.append("Primary recommendation: none yet. Eligible demand evidence is insufficient for an acquisition action.")
     else:
         raise RuntimeError("This offline input path cannot substantiate a primary recommendation")
-    lines.extend(["", "## Unknowns and limits", "",
-                  ("- Live website condition: UNKNOWN; only supplied HTML fixtures were analyzed."
-                   if content else "- Live website condition: UNKNOWN; no website was supplied."),
-                  "- Independent customer demand: UNKNOWN; founder attestations are not source verification.",
-                  "- Automated minimization checks catch some identifiers but cannot guarantee removal of personal data; founder review is required.",
-                  "- Visits, conversions, customers and causal impact: UNKNOWN; none were measured.",
-                  "- No publishing, outreach, purchase, production write or external action occurred.", ""])
+
+    lines.extend([
+        "",
+        "Evidence still missing:",
+        ("- Customer-demand evidence: UNKNOWN; no observations were supplied."
+         if not observations else
+         "- Customer-demand evidence: UNKNOWN; no independently verified demand observations were supplied."),
+        "- Independent customer demand: UNKNOWN; founder attestations are not source verification.",
+        ("- Live website condition: UNKNOWN; only supplied HTML fixtures were analyzed."
+         if content else "- Live website condition: UNKNOWN; no website was supplied."),
+        "- Authorized public demand discovery with live URL, excerpt and freshness verification: missing.",
+        "- Verified channel permission and zero-spend eligibility for an acquisition placement: missing.",
+        "- Visits, conversions, customers and causal impact: UNKNOWN; none were measured.",
+        "- No publishing, outreach, purchase, production write or external action occurred.",
+        "",
+        "Founder-attested context (self-declared, not verified demand):",
+        (f'- <a id="{profile_ref}"></a> **founder-attested** `{profile_ref}`: '
+         f'{_md(profile.name)}; {_md(profile.description)}; '
+         f'website: {_md(profile.website or "none")}. '
+         "Business details were confirmed for this review, not independently verified."),
+    ])
+    for item in observations:
+        lines.append(
+            f'- <a id="{item.observation_id}"></a> **founder-attested** `{item.observation_id}`: '
+            f"{_md(item.claim)} Source record: `{item.source_id}`; independently verified: no; verified demand: no."
+        )
+        lines.append(
+            f"- **founder-attested:** {_md(item.claim)} "
+            f"[Source record](#{item.observation_id}). This is not independently verified demand."
+        )
+    lines.extend([
+        "- Automated minimization checks catch some identifiers but cannot guarantee removal of personal data; founder review is required.",
+        "",
+    ])
     return "\n".join(lines)
+
 
 
 def run_client_review(profile: ProductProfile, *, permission_path: Path | None = None,
