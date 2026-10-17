@@ -792,3 +792,284 @@ def test_section_2_includes_what_to_bring_next_and_preserves_none_yet_outcome(tm
     ) in section_2
 
 
+def test_client_review_code_path_has_no_git_github_vercel_railway_or_supabase_imports_or_calls(tmp_path, monkeypatch):
+    import ast
+    import os
+    from pathlib import Path
+    import subprocess
+    import sys
+
+    forbid_network(monkeypatch)
+    repo_root = Path(__file__).resolve().parents[1]
+    client_review_modules = [
+        "founderreach/client_review.py",
+        "founderreach/cli.py",
+        "founderreach/evidence.py",
+        "founderreach/identity.py",
+        "founderreach/models.py",
+        "founderreach/privacy.py",
+        "founderreach/research_store.py",
+        "founderreach/website.py",
+        "founderreach/m3/pipeline.py",
+        "founderreach/m3/site.py",
+        "founderreach/m3/aeo.py",
+        "founderreach/m3/geo.py",
+        "founderreach/m3/content.py",
+        "founderreach/m4/candidates.py",
+        "founderreach/m4/contracts.py",
+        "founderreach/m4/decision.py",
+        "founderreach/m4/gate_bridge.py",
+    ]
+    forbidden_imports = {
+        "git", "gitpython", "github", "pygithub", "vercel", "railway",
+        "supabase", "postgrest", "gotrue", "psycopg", "psycopg2", "asyncpg",
+        "dotenv", "python_dotenv", "subprocess", "ftplib", "paramiko", " fabric",
+    }
+    forbidden_call_names = {
+        "git", "gh", "vercel", "railway", "supabase", "system", "popen",
+        "Popen", "check_call", "check_output",
+    }
+
+    for rel_path in client_review_modules:
+        source = (repo_root / rel_path).read_text(encoding="utf-8")
+        tree = ast.parse(source, filename=rel_path)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    top = alias.name.split(".")[0].lower()
+                    assert top not in forbidden_imports, f"Forbidden import {alias.name} in {rel_path}"
+            elif isinstance(node, ast.ImportFrom) and node.module:
+                top = node.module.split(".")[0].lower()
+                assert top not in forbidden_imports, f"Forbidden import from {node.module} in {rel_path}"
+            elif isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name):
+                    assert node.func.id not in forbidden_call_names, f"Forbidden call {node.func.id} in {rel_path}"
+                elif isinstance(node.func, ast.Attribute):
+                    assert node.func.attr not in forbidden_call_names, f"Forbidden call .{node.func.attr} in {rel_path}"
+
+    def fail_proc(*args, **kwargs):
+        pytest.fail("External process or shell command execution attempted")
+
+    monkeypatch.setattr(subprocess, "run", fail_proc)
+    monkeypatch.setattr(subprocess, "Popen", fail_proc)
+    monkeypatch.setattr(subprocess, "call", fail_proc)
+    monkeypatch.setattr(subprocess, "check_call", fail_proc)
+    monkeypatch.setattr(subprocess, "check_output", fail_proc)
+    monkeypatch.setattr(os, "system", fail_proc)
+    if hasattr(os, "popen"):
+        monkeypatch.setattr(os, "popen", fail_proc)
+
+    permission, fixtures = inputs(tmp_path)
+    monkeypatch.setattr("builtins.input", lambda prompt: "CONFIRM")
+    report_path = tmp_path / "boundary_check.md"
+    main([
+        "client-review", "--url", "https://example.com/", "--business-id", "example-business",
+        "--name", "Example Business", "--description", "Appointment scheduling service",
+        "--permission", str(permission), "--fixtures", str(fixtures), "--report", str(report_path),
+    ])
+    for mod_name in list(sys.modules):
+        top = mod_name.split(".")[0].lower()
+        assert top not in {"git", "github", "vercel", "railway", "supabase"}
+
+
+def test_client_review_never_reads_credentials_or_dotenv_and_rejects_dotenv_inputs(tmp_path, monkeypatch):
+    import builtins
+    import os
+    from pathlib import Path
+
+    forbid_network(monkeypatch)
+    canary_secret = "CANARY_SECRET_VALUE_998877"
+    dotenv_file = tmp_path / ".env"
+    dotenv_json = tmp_path / ".env.json"
+
+    for env_key in ("SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_KEY", "GITHUB_TOKEN",
+                    "VERCEL_TOKEN", "RAILWAY_TOKEN", "GEMINI_API_KEY", "OPENAI_API_KEY"):
+        monkeypatch.setenv(env_key, canary_secret)
+
+    permission, fixtures = inputs(tmp_path)
+
+    # Reject .env or .env.json if supplied as any client-review file input (without opening the file)
+    with pytest.raises(ValueError, match="JSON input file"):
+        run_client_review(profile("https://example.com/"), permission_path=dotenv_file, fixture_path=fixtures)
+    with pytest.raises(ValueError, match="JSON input file"):
+        run_client_review(profile("https://example.com/"), permission_path=dotenv_json, fixture_path=fixtures)
+    with pytest.raises(ValueError, match="JSON input file"):
+        run_client_review(profile("https://example.com/"), permission_path=permission, fixture_path=dotenv_json)
+    with pytest.raises(ValueError, match="JSON input file"):
+        run_client_review(profile(), attestations_path=dotenv_json)
+
+    real_open = builtins.open
+    real_path_open = Path.open
+    real_read_text = Path.read_text
+    real_read_bytes = Path.read_bytes
+    real_getenv = os.getenv
+
+    def guard_path(p):
+        name = Path(p).name.lower()
+        if ".env" in name or name in {"id_rsa", "credentials", "credentials.json"} or name.endswith((".pem", ".key")):
+            pytest.fail(f"Credential or .env file access attempted: {p}")
+
+    def checked_open(file, *args, **kwargs):
+        if isinstance(file, (str, Path)):
+            guard_path(file)
+        return real_open(file, *args, **kwargs)
+
+    def checked_path_open(self, *args, **kwargs):
+        guard_path(self)
+        return real_path_open(self, *args, **kwargs)
+
+    def checked_read_text(self, *args, **kwargs):
+        guard_path(self)
+        return real_read_text(self, *args, **kwargs)
+
+    def checked_read_bytes(self, *args, **kwargs):
+        guard_path(self)
+        return real_read_bytes(self, *args, **kwargs)
+
+    def checked_getenv(key, default=None):
+        if any(tok in key.upper() for tok in ("SUPABASE", "GITHUB", "VERCEL", "RAILWAY", "SECRET", "TOKEN", "API_KEY", "PASSWORD")):
+            pytest.fail(f"Credential environment variable read attempted: {key}")
+        return real_getenv(key, default)
+
+    monkeypatch.setattr(builtins, "open", checked_open)
+    monkeypatch.setattr(Path, "open", checked_path_open)
+    monkeypatch.setattr(Path, "read_text", checked_read_text)
+    monkeypatch.setattr(Path, "read_bytes", checked_read_bytes)
+    monkeypatch.setattr(os, "getenv", checked_getenv)
+
+    result = run_client_review(profile("https://example.com/"), permission_path=permission, fixture_path=fixtures)
+    assert canary_secret not in result.report
+
+
+def test_client_review_performs_only_get_to_approved_pages_and_writes_only_new_report_file(tmp_path, monkeypatch):
+    import builtins
+    from pathlib import Path
+    import sqlite3
+
+    live_perm = live_permission(tmp_path)
+    net = install_mock_live_network(monkeypatch, responses={
+        "https://example.com/robots.txt": (200, {"Content-Type": "text/plain"}, "User-agent: *\nAllow: /\n"),
+        "https://example.com/sitemap.xml": (
+            200,
+            {"Content-Type": "application/xml"},
+            "<urlset><url><loc>https://example.com/</loc><loc>https://example.com/unapproved-page</loc></url></urlset>",
+        ),
+        "https://example.com/": (
+            200,
+            {"Content-Type": "text/html"},
+            "<html><head><title>Example Business</title><link rel='canonical' href='https://example.com/'></head>"
+            "<body><h1>Example Business</h1><a href='https://example.com/unapproved-link'>More</a></body></html>",
+        ),
+        "https://example.com/unapproved-page": (200, {"Content-Type": "text/html"}, "<html><body>Unapproved</body></html>"),
+        "https://example.com/unapproved-link": (200, {"Content-Type": "text/html"}, "<html><body>Unapproved</body></html>"),
+    })
+
+    write_opens = []
+    sqlite_targets = []
+    real_open = builtins.open
+    real_path_open = Path.open
+    real_sqlite_connect = sqlite3.connect
+
+    def is_write_mode(mode: str) -> bool:
+        return any(ch in mode for ch in ("w", "a", "x", "+"))
+
+    def track_open(file, mode="r", *args, **kwargs):
+        if is_write_mode(str(mode)):
+            write_opens.append((Path(file).resolve(), str(mode)))
+        return real_open(file, mode, *args, **kwargs)
+
+    def track_path_open(self, mode="r", *args, **kwargs):
+        if is_write_mode(str(mode)):
+            write_opens.append((self.resolve(), str(mode)))
+        return real_path_open(self, mode, *args, **kwargs)
+
+    def fail_write(*args, **kwargs):
+        pytest.fail("Direct Path.write_text or Path.write_bytes is forbidden; must use exclusive open('x')")
+
+    def track_sqlite(database, *args, **kwargs):
+        sqlite_targets.append(str(database))
+        return real_sqlite_connect(database, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "open", track_open)
+    monkeypatch.setattr(Path, "open", track_path_open)
+    monkeypatch.setattr(Path, "write_text", fail_write)
+    monkeypatch.setattr(Path, "write_bytes", fail_write)
+    monkeypatch.setattr(sqlite3, "connect", track_sqlite)
+    monkeypatch.setattr("builtins.input", lambda prompt: "CONFIRM")
+
+    report_path = (tmp_path / "exclusive_report.md").resolve()
+    main([
+        "client-review", "--url", "https://example.com/", "--business-id", "example-business",
+        "--name", "Example Business", "--description", "Appointment scheduling service",
+        "--permission", str(live_perm), "--live-site", "--report", str(report_path),
+    ])
+
+    # Only GET requests to explicitly approved pages (unapproved links in HTML/sitemap are never fetched)
+    approved_set = {"https://example.com/", "https://example.com/robots.txt", "https://example.com/sitemap.xml"}
+    assert net["http_requests"]
+    for method, host, _port, path, hdrs in net["http_requests"]:
+        assert method == "GET"
+        assert f"https://{host}{path}" in approved_set
+        assert not ({"authorization", "cookie", "x-api-key"} & {k.lower() for k in hdrs})
+
+    # Only in-memory SQLite was used, and the ONLY file opened for writing is the new report file with mode 'x'
+    assert sqlite_targets == [":memory:"]
+    assert write_opens == [(report_path, "x")]
+    assert report_path.is_file()
+
+
+def test_report_fixes_appear_as_copyable_suggestions_for_client_to_apply_and_never_mutate_inputs(tmp_path, monkeypatch):
+    from hashlib import sha256
+
+    forbid_network(monkeypatch)
+    html_body = (
+        "<html><head><title>Portal</title></head>"
+        "<body><h2>How does reminder setup work across calendar devices?</h2>"
+        "<p>Reminder setup works across calendar devices automatically in two minutes with our 100% guaranteed platform.</p>"
+        "</body></html>"
+    )
+    permission, fixtures = inputs(
+        tmp_path,
+        fixture_change=lambda f: f["pages"]["https://example.com/"].update({"body": html_body}),
+    )
+    attestation = tmp_path / "attestations.json"
+    attestation.write_text(json.dumps([{
+        "native_id": "q-remind",
+        "excerpt": "How does reminder setup work across calendar devices?",
+        "claim": "How does reminder setup work across calendar devices?",
+        "minimized_by_founder": True,
+    }]), encoding="utf-8")
+
+    before_hashes = {
+        p.name: sha256(p.read_bytes()).hexdigest()
+        for p in (permission, fixtures, attestation)
+    }
+
+    result = run_client_review(
+        profile("https://example.com/"),
+        permission_path=permission,
+        fixture_path=fixtures,
+        attestations_path=attestation,
+    )
+    after_hashes = {
+        p.name: sha256(p.read_bytes()).hexdigest()
+        for p in (permission, fixtures, attestation)
+    }
+    assert before_hashes == after_hashes
+
+    _, after_s1 = result.report.split("## Section 1: Site improvements\n", 1)
+    section_1, _ = after_s1.split("\n## Section 2: Acquisition action\n", 1)
+
+    assert (
+        "Any fix offered below is a suggestion only (copyable text for the client to apply); "
+        "FounderReach never modifies a client repository, hosting, deployment or database."
+    ) in section_1
+
+    finding_lines = [line for line in section_1.splitlines() if "Suggested technical change:" in line]
+    assert len(finding_lines) >= 6
+    for line in finding_lines:
+        assert "Suggestion (copyable text for client to apply; never applied by FounderReach): `" in line
+        match = re.search(r"Suggestion \(copyable text for client to apply; never applied by FounderReach\): `([^`]+)`\.", line)
+        assert match and match.group(1).strip()
+
+

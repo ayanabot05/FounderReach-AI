@@ -106,8 +106,8 @@ class WebsitePermission(BaseModel):
 
 
 def _read_json(path: Path, *, max_bytes: int) -> object:
-    if (path.suffix.lower() != ".json" or path.is_symlink() or not path.is_file()
-            or path.stat().st_size > max_bytes):
+    if (".env" in path.name.lower() or path.suffix.lower() != ".json"
+            or path.is_symlink() or not path.is_file() or path.stat().st_size > max_bytes):
         raise ValueError("A bounded local JSON input file is required")
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -268,6 +268,80 @@ def _jsonld_types(blocks: list[dict]) -> list[str]:
     return types
 
 
+def _copyable_suggestion(code: str, brand_name: str, target_url: str, fallback: str) -> str:
+    """Return inert, copyable snippet text for the client to review and apply manually."""
+    safe_brand = html.escape(brand_name, quote=True)
+    safe_url = html.escape(target_url, quote=True)
+    templates = {
+        "metadata": (
+            f'<title>{safe_brand} — [Primary Page Topic]</title> '
+            f'<meta name="description" content="{safe_brand} provides [concise factual summary].">'
+        ),
+        "canonical": f'<link rel="canonical" href="{safe_url}">',
+        "heading_structure": f"<h1>{safe_brand} — [Primary Page Heading]</h1>",
+        "noindex": '<meta name="robots" content="index, follow">',
+        "invalid_jsonld": (
+            f'<script type="application/ld+json">'
+            f'{{"@context":"https://schema.org","@type":"Organization","name":"{safe_brand}","url":"{safe_url}"}}'
+            f"</script>"
+        ),
+        "missing_structured_data": (
+            f'<script type="application/ld+json">'
+            f'{{"@context":"https://schema.org","@type":"Organization","name":"{safe_brand}","url":"{safe_url}"}}'
+            f"</script>"
+        ),
+        "missing_organization_schema": (
+            f'<script type="application/ld+json">'
+            f'{{"@context":"https://schema.org","@type":"Organization","name":"{safe_brand}","url":"{safe_url}"}}'
+            f"</script>"
+        ),
+        "missing_website_schema": (
+            f'<script type="application/ld+json">'
+            f'{{"@context":"https://schema.org","@type":"WebSite","name":"{safe_brand}","url":"{safe_url}"}}'
+            f"</script>"
+        ),
+        "website_schema_mismatch": (
+            f'<script type="application/ld+json">'
+            f'{{"@context":"https://schema.org","@type":"WebSite","name":"{safe_brand}","url":"{safe_url}"}}'
+            f"</script>"
+        ),
+        "schema_brand_mismatch": f'"@type": "Organization", "name": "{safe_brand}"',
+        "brand_name_mismatch": f"<title>[Page Topic] | {safe_brand}</title>",
+        "brand_inconsistency": f"<title>[Page Topic] | {safe_brand}</title>",
+        "missing_sitemap": (
+            f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+            f"<url><loc>{safe_url}</loc></url></urlset>"
+        ),
+        "sitemap_omission": f"<url><loc>{safe_url}</loc></url>",
+        "robots_blocked": "User-agent: FounderReach\\nAllow: /",
+        "orphan_page": f'<a href="{safe_url}">{safe_brand} — [Page Title]</a>',
+        "faq_schema_suitability": (
+            '<script type="application/ld+json">'
+            '{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{'
+            '"@type":"Question","name":"[Visible question heading]",'
+            '"acceptedAnswer":{"@type":"Answer","text":"[Visible two-sentence factual answer]"}}]}'
+            "</script>"
+        ),
+        "missing_page": (
+            f"<section><h2>[Question heading]</h2>"
+            f"<p>{safe_brand} [two-sentence direct factual answer grounded in product documentation].</p></section>"
+        ),
+        "missing_direct_answer": (
+            f"<p>{safe_brand} [two-sentence direct factual answer placed immediately below the H1 or question heading].</p>"
+        ),
+        "missing_about": (
+            f'<section id="about"><h2>About {safe_brand}</h2>'
+            f"<p>{safe_brand} provides [factual organization background and product purpose].</p></section>"
+        ),
+        "missing_contact": (
+            '<section id="contact"><h2>Contact</h2>'
+            "<p>Support contact: [public support email or contact page URL]</p></section>"
+        ),
+    }
+    raw = templates.get(code, f"[{html.escape(fallback, quote=True)}]")
+    return raw.replace("`", "'")
+
+
 def _report(profile: ProductProfile, observations: list[EvidenceObservation], content, decision,
             *, site_evidence_mode: str = "unknown") -> str:
     profile_ref = _record_id("profile", profile.identifier, str(profile.version))
@@ -291,9 +365,13 @@ def _report(profile: ProductProfile, observations: list[EvidenceObservation], co
         "",
         "## Section 1: Site improvements",
         "",
-        ("Findings below come from observed site evidence only (bounded live HTTPS fetch of approved URLs)."
+        ("Findings below come from observed site evidence only (bounded live HTTPS fetch of approved URLs). "
+         "Any fix offered below is a suggestion only (copyable text for the client to apply); "
+         "FounderReach never modifies a client repository, hosting, deployment or database."
          if live_mode else
-         "Findings below come from observed site evidence only (offline HTML and metadata fixtures)."),
+         "Findings below come from observed site evidence only (offline HTML and metadata fixtures). "
+         "Any fix offered below is a suggestion only (copyable text for the client to apply); "
+         "FounderReach never modifies a client repository, hosting, deployment or database."),
         "",
     ]
     if content:
@@ -399,6 +477,9 @@ def _report(profile: ProductProfile, observations: list[EvidenceObservation], co
 
         for finding in content.site.findings:
             ref = _record_id("finding", finding.code, finding.affected_url, finding.observed_evidence)
+            snippet = _copyable_suggestion(
+                finding.code, profile.name, finding.affected_url, finding.suggested_correction
+            )
             lines.append(
                 f'- <a id="{ref}"></a> **{site_label}** `{ref}`: '
                 f'{_md(finding.affected_url)}; `{finding.code}`; '
@@ -407,6 +488,7 @@ def _report(profile: ProductProfile, observations: list[EvidenceObservation], co
             lines.append(
                 f"- **{site_label}:** {_md(finding.problem)} at "
                 f"{_md(finding.affected_url)}. Suggested technical change: {_md(finding.suggested_correction)}. "
+                f"Suggestion (copyable text for client to apply; never applied by FounderReach): `{snippet}`. "
                 f"[Source record](#{ref})."
             )
         _aeo_problems = {
@@ -425,6 +507,7 @@ def _report(profile: ProductProfile, observations: list[EvidenceObservation], co
                 if finding.code in {"missing_page", "missing_direct_answer"}
                 else _md(finding.observed_evidence or "UNKNOWN")
             )
+            snippet = _copyable_suggestion(finding.code, profile.name, target_url, finding.recommendation)
             lines.append(
                 f'- <a id="{ref}"></a> **{site_label}** `{ref}`: '
                 f'{_md(target_url)}; `{finding.code}`; '
@@ -433,11 +516,15 @@ def _report(profile: ProductProfile, observations: list[EvidenceObservation], co
             lines.append(
                 f"- **{site_label}:** AEO (`{finding.code}`): {_md(problem_text)} at "
                 f"{_md(target_url)}. Suggested technical change: {_md(finding.recommendation)}. "
+                f"Suggestion (copyable text for client to apply; never applied by FounderReach): `{snippet}`. "
                 f"[Source record](#{ref})."
             )
         for finding in content.geo.readiness_findings:
             target_url = finding.affected_url or site_origin
             ref = _record_id("finding-geo", finding.code, target_url, finding.observed_evidence)
+            snippet = _copyable_suggestion(
+                finding.code, profile.name, target_url, finding.suggested_correction
+            )
             lines.append(
                 f'- <a id="{ref}"></a> **{site_label}** `{ref}`: '
                 f'{_md(target_url)}; `{finding.code}`; '
@@ -446,6 +533,7 @@ def _report(profile: ProductProfile, observations: list[EvidenceObservation], co
             lines.append(
                 f"- **{site_label}:** GEO (`{finding.code}`): {_md(finding.problem)} at "
                 f"{_md(target_url)}. Suggested technical change: {_md(finding.suggested_correction)}. "
+                f"Suggestion (copyable text for client to apply; never applied by FounderReach): `{snippet}`. "
                 f"[Source record](#{ref})."
             )
         if not (content.site.findings or content.aeo.findings or content.geo.readiness_findings):
