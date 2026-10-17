@@ -1,0 +1,526 @@
+[
+  {
+    "id": "eval_hn_28442070",
+    "product_name": "AYANA",
+    "platform": "Hacker News",
+    "original_url": "https://news.ycombinator.com/item?id=28442070",
+    "discussion_date": null,
+    "author": "teekert",
+    "classification": "RESEARCH_INSIGHT",
+    "source_status": "SOURCE_UNVERIFIED",
+    "intent_status": "CUSTOMER_INTENT_UNVERIFIED",
+    "direct_problem_evidence": null,
+    "rejection_reasons": [],
+    "customer_problem": "Author experiences friction with safety anxiety regarding parents living alone and potential emergencies.",
+    "why_relevant": "AYANA schedules daily routine checks and alerts family if safety confirmations are missed.",
+    "evidence_excerpt": "I can understand this. I think my parents never questioned the usefulness of a formal education. But I am starting to.\n\n",
+    "score": {
+      "problem_fit": 22.0,
+      "customer_fit": 11.0,
+      "expressed_intent": 20.0,
+      "recency": 8.0,
+      "evidence_quality": 11.0,
+      "total_score": 72.0,
+      "justification": {
+        "recency": "Publication date unavailable. Neutral recency score applied.",
+        "problem_fit": "Moderate problem match: Discussion mentions relevant problems (elderly parents living alone).",
+        "customer_fit": "Moderate persona alignment: Discusses personal parent care, though remote distance is implicit.",
+        "evidence_quality": "Sufficient evidence (1213 chars).",
+        "expressed_intent": "Active Solution Seeker (Author actively asks for solutions/recommendations and shares direct personal experience (1 seeker signals, 2 pain signals).)"
+      }
+    },
+    "suggested_response": "",
+    "verification": {
+      "verified": true,
+      "http_status": 200,
+      "verified_url": "https://news.ycombinator.com/item?id=28442070",
+      "evidence_excerpt": "I can understand this. I think my parents never questioned the usefulness of a formal education. But I am starting to.\n\n",
+      "checked_at": "2026-10-16T19:24:51.524329Z",
+      "verification_notes": "Live URL reached and excerpt verified in page content."
+    },
+    "feedback": null,
+    "feedback_notes": null,
+    "created_at": "2026-10-16T19:36:58.809464Z"
+  },
+  {
+    "id": "eval_hn_11105364",
+    "product_name": "AYANA",
+    "platform": "Hacker News",
+    "original_url": "https://news.ycombinator.com/item?id=11105364",
+    "discussion_date": null,
+    "author": "helpfulanon",
+    "classification": "RESEARCH_INSIGHT",
+    "source_status": "SOURCE_UNVERIFIED",
+    "intent_status": "CUSTOMER_INTENT_UNVERIFIED",
+    "direct_problem_evidence": null,
+    "rejection_reasons": [],
+    "customer_problem": "Author experiences friction with safety anxiety regarding parents living alone and potential emergencies, and managing family connection across time zones and geographic distance.",
+    "why_relevant": "AYANA schedules daily routine checks and alerts family if safety confirmations are missed.",
+    "evidence_excerpt": "I am in a very similar place right now.\n\nSimilarly horrified that my only valuable skillset makes me effectively chained",
+    "score": {
+      "problem_fit": 22.0,
+      "customer_fit": 11.0,
+      "expressed_intent": 16.0,
+      "recency": 8.0,
+      "evidence_quality": 15.0,
+      "total_score": 72.0,
+      "justification": {
+        "recency": "Publication date unavailable. Neutral recency score applied.",
+        "problem_fit": "Moderate problem match: Discussion mentions relevant problems (elderly parents care, elderly parents living alone).",
+        "customer_fit": "Moderate persona alignment: Discusses personal parent care, though remote distance is implicit.",
+        "evidence_quality": "Rich contextual evidence (2312 chars with specific operational details).",
+        "expressed_intent": "Inquiring / Solution Seeker (Author is actively seeking advice or tools (1 seeker signals).)"
+      }
+    },
+    "suggested_response": "",
+    "verification": {
+      "verified": true,
+      "http_status": 200,
+      "verified_url": "https://news.ycombinator.com/item?id=11105364",
+      "evidence_excerpt": "I am in a very similar place right now.\n\nSimilarly horrified that my only valuable skillset makes me effectively chained",
+      "checked_at": "2026-10-16T19:24:52.683750Z",
+      "verification_notes": "Live URL reached and excerpt verified in page content."
+    },
+    "feedback": null,
+    "feedback_notes": null,
+    "created_at": "2026-10-16T19:36:58.809508Z"
+  },
+  {
+    "id": "eval_hn_6227259",
+    "product_name": "AYANA",
+    "platform": "Hacker News",
+    "original_url": "https://news.ycombinator.com/item?id=6227259",
+    "discussion_date": null,
+    "author": "idank",
+    "classification": "RESEARCH_INSIGHT",
+    "source_status": "SOURCE_UNVERIFIED",
+    "intent_status": "CUSTOMER_INTENT_UNVERIFIED",
+    "direct_problem_evidence": null,
+    "rejection_reasons": [],
+    "customer_problem": "Author experiences friction with maintaining regular daily check-ins without overwhelming elderly parents, and safety anxiety regarding parents living alone and potential emergencies.",
+    "why_relevant": "AYANA schedules daily routine checks and alerts family if safety confirmations are missed.",
+    "evidence_excerpt": "It's marketed as a device for the elderly but another segment that could benefit from this are disabled people living al",
+    "score": {
+      "problem_fit": 22.0,
+      "customer_fit": 11.0,
+      "expressed_intent": 15.0,
+      "recency": 8.0,
+      "evidence_quality": 15.0,
+      "total_score": 71.0,
+      "justification": {
+        "recency": "Publication date unavailable. Neutral recency score applied.",
+        "problem_fit": "Moderate problem match: Discussion mentions relevant problems (elderly parents living alone).",
+        "customer_fit": "Moderate persona alignment: Discusses personal parent care, though remote distance is implicit.",
+        "evidence_quality": "Rich contextual evidence (628 chars with specific operational details).",
+        "expressed_intent": "Personal Problem Experiencer (Author recounts first-hand personal struggle with the problem (3 personal experience markers).)"
+      }
+    },
+    "suggested_response": "",
+    "verification": {
+      "verified": true,
+      "http_status": 200,
+      "verified_url": "https://news.ycombinator.com/item?id=6227259",
+      "evidence_excerpt": "It's marketed as a device for the elderly but another segment that could benefit from this are disabled people living al",
+      "checked_at": "2026-10-16T19:24:54.206732Z",
+      "verification_notes": "Live URL reached and excerpt verified in page content."
+    },
+    "feedback": null,
+    "feedback_notes": null,
+    "created_at": "2026-10-16T19:36:58.809532Z"
+  },
+  {
+    "id": "eval_hn_27467418",
+    "product_name": "AYANA",
+    "platform": "Hacker News",
+    "original_url": "https://news.ycombinator.com/item?id=27467418",
+    "discussion_date": null,
+    "author": "marginalcodex",
+    "classification": "RESEARCH_INSIGHT",
+    "source_status": "SOURCE_UNVERIFIED",
+    "intent_status": "CUSTOMER_INTENT_UNVERIFIED",
+    "direct_problem_evidence": null,
+    "rejection_reasons": [],
+    "customer_problem": "Author experiences friction with maintaining regular daily check-ins without overwhelming elderly parents, and safety anxiety regarding parents living alone and potential emergencies, and managing family connection across time zones and geographic distance.",
+    "why_relevant": "AYANA schedules daily routine checks and alerts family if safety confirmations are missed.",
+    "evidence_excerpt": "Some random thoughts: March 12th is a day I will remember forever. Rudy Gobert touched some microphones, the NBA suspend",
+    "score": {
+      "problem_fit": 22.0,
+      "customer_fit": 11.0,
+      "expressed_intent": 15.0,
+      "recency": 8.0,
+      "evidence_quality": 15.0,
+      "total_score": 71.0,
+      "justification": {
+        "recency": "Publication date unavailable. Neutral recency score applied.",
+        "problem_fit": "Moderate problem match: Discussion mentions relevant problems (elderly parents living alone).",
+        "customer_fit": "Moderate persona alignment: Discusses personal parent care, though remote distance is implicit.",
+        "evidence_quality": "Rich contextual evidence (8008 chars with specific operational details).",
+        "expressed_intent": "Personal Problem Experiencer (Author recounts first-hand personal struggle with the problem (2 personal experience markers).)"
+      }
+    },
+    "suggested_response": "",
+    "verification": {
+      "verified": true,
+      "http_status": 200,
+      "verified_url": "https://news.ycombinator.com/item?id=27467418",
+      "evidence_excerpt": "Some random thoughts: March 12th is a day I will remember forever. Rudy Gobert touched some microphones, the NBA suspend",
+      "checked_at": "2026-10-16T19:24:55.843723Z",
+      "verification_notes": "Live URL reached and excerpt verified in page content."
+    },
+    "feedback": null,
+    "feedback_notes": null,
+    "created_at": "2026-10-16T19:36:58.809551Z"
+  },
+  {
+    "id": "eval_hn_25394259",
+    "product_name": "AYANA",
+    "platform": "Hacker News",
+    "original_url": "https://news.ycombinator.com/item?id=25394259",
+    "discussion_date": null,
+    "author": "romanoderoma",
+    "classification": "RESEARCH_INSIGHT",
+    "source_status": "SOURCE_UNVERIFIED",
+    "intent_status": "CUSTOMER_INTENT_UNVERIFIED",
+    "direct_problem_evidence": null,
+    "rejection_reasons": [],
+    "customer_problem": "Author experiences friction with maintaining regular daily check-ins without overwhelming elderly parents, and safety anxiety regarding parents living alone and potential emergencies, and managing family connection across time zones and geographic distance.",
+    "why_relevant": "AYANA schedules daily routine checks and alerts family if safety confirmations are missed.",
+    "evidence_excerpt": "Coming from a family where I am the first generation who could afford going to college, I disagree.\n\nOP was talking abou",
+    "score": {
+      "problem_fit": 22.0,
+      "customer_fit": 11.0,
+      "expressed_intent": 15.0,
+      "recency": 8.0,
+      "evidence_quality": 15.0,
+      "total_score": 71.0,
+      "justification": {
+        "recency": "Publication date unavailable. Neutral recency score applied.",
+        "problem_fit": "Moderate problem match: Discussion mentions relevant problems (safety & emergency anxiety, elderly parents living alone).",
+        "customer_fit": "Moderate persona alignment: Discusses personal parent care, though remote distance is implicit.",
+        "evidence_quality": "Rich contextual evidence (2292 chars with specific operational details).",
+        "expressed_intent": "Personal Problem Experiencer (Author recounts first-hand personal struggle with the problem (2 personal experience markers).)"
+      }
+    },
+    "suggested_response": "",
+    "verification": {
+      "verified": true,
+      "http_status": 200,
+      "verified_url": "https://news.ycombinator.com/item?id=25394259",
+      "evidence_excerpt": "Coming from a family where I am the first generation who could afford going to college, I disagree.\n\nOP was talking abou",
+      "checked_at": "2026-10-16T19:24:56.981817Z",
+      "verification_notes": "Live URL reached and excerpt verified in page content."
+    },
+    "feedback": null,
+    "feedback_notes": null,
+    "created_at": "2026-10-16T19:36:58.809575Z"
+  },
+  {
+    "id": "eval_hn_25387811",
+    "product_name": "AYANA",
+    "platform": "Hacker News",
+    "original_url": "https://news.ycombinator.com/item?id=25387811",
+    "discussion_date": null,
+    "author": "throwaway0a5e",
+    "classification": "RESEARCH_INSIGHT",
+    "source_status": "SOURCE_UNVERIFIED",
+    "intent_status": "CUSTOMER_INTENT_UNVERIFIED",
+    "direct_problem_evidence": null,
+    "rejection_reasons": [],
+    "customer_problem": "Author experiences friction with maintaining regular daily check-ins without overwhelming elderly parents, and safety anxiety regarding parents living alone and potential emergencies.",
+    "why_relevant": "AYANA schedules daily routine checks and alerts family if safety confirmations are missed.",
+    "evidence_excerpt": ">Absolutely not - and I have direct experience of this.\n\nEveryone who has direct experience of this time has been dead f",
+    "score": {
+      "problem_fit": 30.0,
+      "customer_fit": 11.0,
+      "expressed_intent": 10.0,
+      "recency": 8.0,
+      "evidence_quality": 11.0,
+      "total_score": 70.0,
+      "justification": {
+        "recency": "Publication date unavailable. Neutral recency score applied.",
+        "problem_fit": "Strong problem match: Author directly discusses multiple core pain points (elderly parents care, parents living alone).",
+        "customer_fit": "Moderate persona alignment: Discusses personal parent care, though remote distance is implicit.",
+        "evidence_quality": "Sufficient evidence (1924 chars).",
+        "expressed_intent": "Passive Problem Mention (Author mentions relevant pain points, but in an observational or narrative context.)"
+      }
+    },
+    "suggested_response": "",
+    "verification": {
+      "verified": true,
+      "http_status": 200,
+      "verified_url": "https://news.ycombinator.com/item?id=25387811",
+      "evidence_excerpt": ">Absolutely not - and I have direct experience of this.\n\nEveryone who has direct experience of this time has been dead f",
+      "checked_at": "2026-10-16T19:24:58.142246Z",
+      "verification_notes": "Live URL reached and excerpt verified in page content."
+    },
+    "feedback": null,
+    "feedback_notes": null,
+    "created_at": "2026-10-16T19:36:58.809604Z"
+  },
+  {
+    "id": "eval_hn_21847554",
+    "product_name": "AYANA",
+    "platform": "Hacker News",
+    "original_url": "https://news.ycombinator.com/item?id=21847554",
+    "discussion_date": null,
+    "author": "at-fates-hands",
+    "classification": "RESEARCH_INSIGHT",
+    "source_status": "SOURCE_UNVERIFIED",
+    "intent_status": "CUSTOMER_INTENT_UNVERIFIED",
+    "direct_problem_evidence": null,
+    "rejection_reasons": [],
+    "customer_problem": "Author experiences friction with safety anxiety regarding parents living alone and potential emergencies.",
+    "why_relevant": "AYANA schedules daily routine checks and alerts family if safety confirmations are missed.",
+    "evidence_excerpt": ">> I wonder if it's a side effect of prosperity.\n\nThis is purely anecdotal evidence for your point but I'll mention it a",
+    "score": {
+      "problem_fit": 22.0,
+      "customer_fit": 16.0,
+      "expressed_intent": 10.0,
+      "recency": 8.0,
+      "evidence_quality": 11.0,
+      "total_score": 67.0,
+      "justification": {
+        "recency": "Publication date unavailable. Neutral recency score applied.",
+        "problem_fit": "Moderate problem match: Discussion mentions relevant problems (elderly parents living alone).",
+        "customer_fit": "Good persona alignment: Participant expresses living away from parents or navigating distance.",
+        "evidence_quality": "Sufficient evidence (2434 chars).",
+        "expressed_intent": "Passive Problem Mention (Author mentions relevant pain points, but in an observational or narrative context.)"
+      }
+    },
+    "suggested_response": "",
+    "verification": {
+      "verified": true,
+      "http_status": 200,
+      "verified_url": "https://news.ycombinator.com/item?id=21847554",
+      "evidence_excerpt": ">> I wonder if it's a side effect of prosperity.\n\nThis is purely anecdotal evidence for your point but I'll mention it a",
+      "checked_at": "2026-10-16T19:25:01.238465Z",
+      "verification_notes": "Live URL reached and excerpt verified in page content."
+    },
+    "feedback": null,
+    "feedback_notes": null,
+    "created_at": "2026-10-16T19:36:58.809631Z"
+  },
+  {
+    "id": "eval_hn_41167639",
+    "product_name": "AYANA",
+    "platform": "Hacker News",
+    "original_url": "https://news.ycombinator.com/item?id=41167639",
+    "discussion_date": null,
+    "author": "ricktdotorg",
+    "classification": "RESEARCH_INSIGHT",
+    "source_status": "SOURCE_UNVERIFIED",
+    "intent_status": "CUSTOMER_INTENT_UNVERIFIED",
+    "direct_problem_evidence": null,
+    "rejection_reasons": [],
+    "customer_problem": "Author experiences friction with safety anxiety regarding parents living alone and potential emergencies, and managing family connection across time zones and geographic distance.",
+    "why_relevant": "AYANA schedules daily routine checks and alerts family if safety confirmations are missed.",
+    "evidence_excerpt": "if your family happens to be on the Apple ecosystem, Find My quite frankly adds an incredible peace of mind when that fa",
+    "score": {
+      "problem_fit": 22.0,
+      "customer_fit": 16.0,
+      "expressed_intent": 10.0,
+      "recency": 8.0,
+      "evidence_quality": 11.0,
+      "total_score": 67.0,
+      "justification": {
+        "recency": "Publication date unavailable. Neutral recency score applied.",
+        "problem_fit": "Moderate problem match: Discussion mentions relevant problems (elderly parents care, parents living alone).",
+        "customer_fit": "Good persona alignment: Participant expresses living away from parents or navigating distance.",
+        "evidence_quality": "Sufficient evidence (505 chars).",
+        "expressed_intent": "Passive Problem Mention (Author mentions relevant pain points, but in an observational or narrative context.)"
+      }
+    },
+    "suggested_response": "",
+    "verification": {
+      "verified": true,
+      "http_status": 200,
+      "verified_url": "https://news.ycombinator.com/item?id=41167639",
+      "evidence_excerpt": "if your family happens to be on the Apple ecosystem, Find My quite frankly adds an incredible peace of mind when that fa",
+      "checked_at": "2026-10-16T19:25:02.377076Z",
+      "verification_notes": "Live URL reached and excerpt verified in page content."
+    },
+    "feedback": null,
+    "feedback_notes": null,
+    "created_at": "2026-10-16T19:36:58.809658Z"
+  },
+  {
+    "id": "eval_hn_48400364",
+    "product_name": "AYANA",
+    "platform": "Hacker News",
+    "original_url": "https://news.ycombinator.com/item?id=48400364",
+    "discussion_date": null,
+    "author": "uberman",
+    "classification": "RESEARCH_INSIGHT",
+    "source_status": "SOURCE_UNVERIFIED",
+    "intent_status": "CUSTOMER_INTENT_UNVERIFIED",
+    "direct_problem_evidence": null,
+    "rejection_reasons": [],
+    "customer_problem": "Author experiences friction with maintaining regular daily check-ins without overwhelming elderly parents.",
+    "why_relevant": "AYANA schedules daily routine checks and alerts family if safety confirmations are missed.",
+    "evidence_excerpt": "This topic comes up every now and then and just reflecting on my own life, I don't see men being bad at making and keepi",
+    "score": {
+      "problem_fit": 22.0,
+      "customer_fit": 11.0,
+      "expressed_intent": 10.0,
+      "recency": 8.0,
+      "evidence_quality": 15.0,
+      "total_score": 66.0,
+      "justification": {
+        "recency": "Publication date unavailable. Neutral recency score applied.",
+        "problem_fit": "Moderate problem match: Discussion mentions relevant problems (elderly parents care, aging parents check in).",
+        "customer_fit": "Moderate persona alignment: Discusses personal parent care, though remote distance is implicit.",
+        "evidence_quality": "Rich contextual evidence (2775 chars with specific operational details).",
+        "expressed_intent": "Passive Problem Mention (Author mentions relevant pain points, but in an observational or narrative context.)"
+      }
+    },
+    "suggested_response": "",
+    "verification": {
+      "verified": true,
+      "http_status": 200,
+      "verified_url": "https://news.ycombinator.com/item?id=48400364",
+      "evidence_excerpt": "This topic comes up every now and then and just reflecting on my own life, I don't see men being bad at making and keepi",
+      "checked_at": "2026-10-16T19:25:03.509476Z",
+      "verification_notes": "Live URL reached and excerpt verified in page content."
+    },
+    "feedback": null,
+    "feedback_notes": null,
+    "created_at": "2026-10-16T19:36:58.809692Z"
+  },
+  {
+    "id": "eval_hn_44858694",
+    "product_name": "AYANA",
+    "platform": "Hacker News",
+    "original_url": "https://news.ycombinator.com/item?id=44858694",
+    "discussion_date": null,
+    "author": "ranabasheer",
+    "classification": "RESEARCH_INSIGHT",
+    "source_status": "SOURCE_VERIFIED",
+    "intent_status": "CUSTOMER_INTENT_VERIFIED",
+    "direct_problem_evidence": "Is there a broader need for a service like this?",
+    "rejection_reasons": [
+      "Publication date is missing or unknown. Cannot verify freshness for actionable outreach."
+    ],
+    "customer_problem": "Author experiences friction with maintaining regular daily check-ins without overwhelming elderly parents, and ensuring elderly parents take daily medications reliably on time.",
+    "why_relevant": "AYANA provides automated, gentle medication reminders.",
+    "evidence_excerpt": "I developed a telephony agent service to help my aging parents, who aren't fluent in English, navigate their healthcare ",
+    "score": {
+      "problem_fit": 14.0,
+      "customer_fit": 10.0,
+      "expressed_intent": 20.0,
+      "recency": 4.0,
+      "evidence_quality": 15.0,
+      "total_score": 63.0,
+      "justification": {
+        "recency": "Publication date unavailable. Treated cautiously (max 4 pts).",
+        "problem_fit": "Partial problem match: Mentions elderly parents care, but lacks multi-dimensional pain depth.",
+        "customer_fit": "Moderate persona alignment: Explicitly discusses caring for aging parents.",
+        "evidence_quality": "Rich contextual evidence (1282 chars with specific operational details).",
+        "expressed_intent": "Active Solution Seeker (Author is actively seeking tools, recommendations, or solutions for this specific problem.)"
+      }
+    },
+    "suggested_response": "",
+    "verification": {
+      "verified": true,
+      "http_status": 200,
+      "verified_url": "https://news.ycombinator.com/item?id=44858694",
+      "evidence_excerpt": "I developed a telephony agent service to help my aging parents, who aren't fluent in English, navigate their healthcare ",
+      "checked_at": "2026-10-16T19:36:20.755184Z",
+      "verification_notes": "Live URL reached and excerpt verified in page content."
+    },
+    "feedback": null,
+    "feedback_notes": null,
+    "created_at": "2026-10-16T19:36:58.809723Z"
+  },
+  {
+    "id": "eval_hn_9613828",
+    "product_name": "AYANA",
+    "platform": "Hacker News",
+    "original_url": "https://news.ycombinator.com/item?id=9613828",
+    "discussion_date": null,
+    "author": "busyant",
+    "classification": "RESEARCH_INSIGHT",
+    "source_status": "SOURCE_VERIFIED",
+    "intent_status": "CUSTOMER_INTENT_UNVERIFIED",
+    "direct_problem_evidence": null,
+    "rejection_reasons": [
+      "No direct evidence: post mentions related keywords, but author does NOT explicitly state personal struggle with parent check-ins, medicine reminders, or living-alone emergencies.",
+      "Publication date is missing or unknown. Cannot verify freshness for actionable outreach."
+    ],
+    "customer_problem": "Author experiences friction with maintaining regular daily check-ins without overwhelming elderly parents.",
+    "why_relevant": "AYANA addresses the exact friction of remote parent care and daily safety check-ins.",
+    "evidence_excerpt": "I am just one data point, but here's how I ended up in a position similar to that described in the article.\n\nI went to a",
+    "score": {
+      "problem_fit": 22.0,
+      "customer_fit": 15.0,
+      "expressed_intent": 6.0,
+      "recency": 4.0,
+      "evidence_quality": 15.0,
+      "total_score": 62.0,
+      "justification": {
+        "recency": "Publication date unavailable. Treated cautiously (max 4 pts).",
+        "problem_fit": "Moderate problem match: Discussion mentions relevant problems (elderly parents care, aging parents check in).",
+        "customer_fit": "Good persona alignment: Explicitly mentions remote parent care across cities/borders.",
+        "evidence_quality": "Rich contextual evidence (2588 chars with specific operational details).",
+        "expressed_intent": "General Commentary / Observational (Discussion mentions eldercare or family topics, but lacks an active solution request or direct check-in problem.)"
+      }
+    },
+    "suggested_response": "",
+    "verification": {
+      "verified": true,
+      "http_status": 200,
+      "verified_url": "https://news.ycombinator.com/item?id=9613828",
+      "evidence_excerpt": "I am just one data point, but here's how I ended up in a position similar to that described in the article.\n\nI went to a",
+      "checked_at": "2026-10-16T19:36:23.334754Z",
+      "verification_notes": "Live URL reached and excerpt verified in page content."
+    },
+    "feedback": null,
+    "feedback_notes": null,
+    "created_at": "2026-10-16T19:36:58.809757Z"
+  },
+  {
+    "id": "eval_hn_47396347",
+    "product_name": "AYANA",
+    "platform": "Hacker News",
+    "original_url": "https://news.ycombinator.com/item?id=47396347",
+    "discussion_date": null,
+    "author": "Markoff",
+    "classification": "RESEARCH_INSIGHT",
+    "source_status": "SOURCE_VERIFIED",
+    "intent_status": "CUSTOMER_INTENT_UNVERIFIED",
+    "direct_problem_evidence": null,
+    "rejection_reasons": [
+      "Discussion is venting about intergenerational child-care reciprocity, not expressing an elder-care check-in problem.",
+      "Publication date is missing or unknown. Cannot verify freshness for actionable outreach."
+    ],
+    "customer_problem": "Author experiences friction with safety anxiety regarding parents living alone and potential emergencies, and managing family connection across time zones and geographic distance.",
+    "why_relevant": "AYANA schedules daily routine checks and alerts family if safety confirmations are missed.",
+    "evidence_excerpt": "TBH it was also expected trade - you will take care of elderly parents in exchange for their help with kids participatio",
+    "score": {
+      "problem_fit": 30.0,
+      "customer_fit": 15.0,
+      "expressed_intent": 0.0,
+      "recency": 4.0,
+      "evidence_quality": 11.0,
+      "total_score": 60.0,
+      "justification": {
+        "recency": "Publication date unavailable. Treated cautiously (max 4 pts).",
+        "problem_fit": "Strong problem match: Author directly discusses multiple core pain points (elderly parents care, parents living alone, remote distance care).",
+        "customer_fit": "Good persona alignment: Explicitly mentions remote parent care across cities/borders.",
+        "evidence_quality": "Sufficient evidence (1104 chars).",
+        "expressed_intent": "Off-Topic / Technical Discussion (Discussion focuses on technical, legal, or unrelated matters without personal customer need.)"
+      }
+    },
+    "suggested_response": "",
+    "verification": {
+      "verified": true,
+      "http_status": 200,
+      "verified_url": "https://news.ycombinator.com/item?id=47396347",
+      "evidence_excerpt": "TBH it was also expected trade - you will take care of elderly parents in exchange for their help with kids participatio",
+      "checked_at": "2026-10-16T19:36:24.498531Z",
+      "verification_notes": "Live URL reached and excerpt verified in page content."
+    },
+    "feedback": null,
+    "feedback_notes": null,
+    "created_at": "2026-10-16T19:36:58.809776Z"
+  }
+]

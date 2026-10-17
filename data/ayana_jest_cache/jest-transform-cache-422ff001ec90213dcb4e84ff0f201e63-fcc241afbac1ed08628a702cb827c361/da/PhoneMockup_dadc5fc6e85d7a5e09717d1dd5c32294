@@ -1,0 +1,557 @@
+2d9277a89796bd9e72a262d09b4d846c
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.PhoneMockup = PhoneMockup;
+var _framerMotion = require("framer-motion");
+var _lucideReact = require("lucide-react");
+var _expandedDemo = require("@/lib/expandedDemo");
+var _jsxDevRuntime = require("react/jsx-dev-runtime");
+var _jsxFileName = "C:\\Users\\gunak\\Downloads\\ayana_whatsapp\\frontend\\src\\components\\PhoneMockup.jsx";
+/**
+ * PhoneMockup
+ * Reusable animated "phone in hand" mockup that plays out a WhatsApp-style
+ * check-in conversation. Used in the Landing hero (right column) — built
+ * as a standalone component so it can be reused anywhere else in the app
+ * (e.g. onboarding preview, marketing sections) without copy-pasting markup.
+ *
+ * Props:
+ *  - avatarSrc: image used as the parent's WhatsApp avatar
+ *  - parentName: display name shown in the chat header
+ *  - lang: "en" | "te" | "hi" (controls button labels)
+ *  - messages: [{ from: "ayana" | "parent", text, time, voice?, buttons? }]
+ *    When `buttons` is provided, renders WhatsApp-style quick-reply pills
+ *    below the chat bubble.
+ */
+const BUTTON_LABELS = {
+  en: {
+    mood: ["Good 😊", "Okay 🙂", "Not well 😟"],
+    medicine: ["Taken ✅", "Not yet", "Skipped"],
+    reengagement: ["I'm fine", "Need help", "Call me"]
+  },
+  te: {
+    mood: ["బాగున్నా 😊", "పరవాలేదు 🙂", "బాలేదు 😟"],
+    medicine: ["వేసుకున్నా ✅", "ఇంకా లేదు", "వేసుకోలేదు"],
+    reengagement: ["నేను బాగున్నాను", "సహాయం కావాలి", "కాల్ చేయండి"]
+  },
+  hi: {
+    mood: ["अच्छा 😊", "ठीक है 🙂", "ठीक नहीं 😟"],
+    medicine: ["ले लिया ✅", "अभी नहीं", "छोड़ दिया"],
+    reengagement: ["मैं ठीक हूँ", "मदद चाहिए", "कॉल कीजिए"]
+  }
+};
+const buildMessages = (lang = "en") => {
+  const native = _expandedDemo.nativeDemoMessages[lang];
+  if (native) return [{
+    from: 'ayana',
+    text: native.morning[0],
+    time: '8:02 AM',
+    buttons: native.morning.slice(1)
+  }, {
+    from: 'parent',
+    text: native.morning[1],
+    time: '8:14 AM'
+  }, {
+    from: 'ayana',
+    text: native.medicine[0],
+    time: '9:00 AM',
+    buttons: native.medicine.slice(1)
+  }, {
+    from: 'parent',
+    text: '',
+    time: '9:05 AM',
+    voice: true
+  }];
+  const labels = BUTTON_LABELS[lang] || BUTTON_LABELS.en;
+  const greetings = {
+    en: "Good morning! 🌞 How are you feeling today?",
+    te: "శుభోదయం! 🌞 ఈరోజు ఎలా ఉన్నారు?",
+    hi: "सुप्रभात! 🌞 आज कैसा महसूस कर रहे हैं?"
+  };
+  // Parent tapped "Good 😊" — reply is exactly the button label
+  const replies = {
+    en: labels.mood[0],
+    // "Good 😊"
+    te: labels.mood[0],
+    // "బాగున్నా 😊"
+    hi: labels.mood[0] // "अच्छा 😊"
+  };
+  const medChecks = {
+    en: "Time for your morning tablet 💊 Crocin — small white one!",
+    te: "మందుల టైం 💊 Crocin మాత్ర వేసుకోండి!",
+    hi: "दवाई का समय 💊 Crocin गोली लेना है!"
+  };
+  return [{
+    from: "ayana",
+    text: greetings[lang] || greetings.en,
+    time: "8:02 AM",
+    buttons: labels.mood
+  }, {
+    from: "parent",
+    text: replies[lang] || replies.en,
+    time: "8:14 AM"
+  }, {
+    from: "ayana",
+    text: medChecks[lang] || medChecks.en,
+    time: "8:15 AM",
+    buttons: labels.medicine
+  }, {
+    from: "parent",
+    text: "",
+    time: "8:20 AM",
+    voice: true
+  }];
+};
+const bubbleVariants = {
+  hidden: {
+    opacity: 0,
+    y: 16,
+    scale: 0.96
+  },
+  show: i => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      delay: 0.8 + i * 0.5,
+      duration: 0.45,
+      ease: [0.22, 1, 0.36, 1]
+    }
+  })
+};
+function PhoneMockup({
+  avatarSrc = "/img_parents.webp",
+  parentName = "Your parent",
+  lang = "en",
+  messages,
+  className = ""
+}) {
+  const msgs = messages || buildMessages(lang);
+  return /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("div", {
+    className: `relative mx-auto w-[300px] sm:w-[320px] ${className}`,
+    "x-file-name": "PhoneMockup",
+    "x-line-number": "101",
+    "x-column": "4",
+    "x-component": "div",
+    "x-id": "PhoneMockup_101_4",
+    "x-dynamic": "false",
+    children: [/*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("div", {
+      className: "absolute -inset-6 rounded-[3rem] blur-2xl opacity-70",
+      style: {
+        background: "linear-gradient(135deg, rgba(255,107,53,0.35), rgba(255,201,60,0.25))"
+      },
+      "aria-hidden": "true",
+      "x-file-name": "PhoneMockup",
+      "x-line-number": "103",
+      "x-column": "6",
+      "x-component": "div",
+      "x-id": "PhoneMockup_103_6",
+      "x-dynamic": "false"
+    }, void 0, false, {
+      fileName: _jsxFileName,
+      lineNumber: 103,
+      columnNumber: 7
+    }, this), /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("div", {
+      className: "relative rounded-[2.5rem] border-[6px] border-[#111] bg-[#111] shadow-2xl overflow-hidden",
+      "x-file-name": "PhoneMockup",
+      "x-line-number": "110",
+      "x-column": "6",
+      "x-component": "div",
+      "x-id": "PhoneMockup_110_6",
+      "x-dynamic": "false",
+      children: [/*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("div", {
+        className: "absolute top-0 left-1/2 -translate-x-1/2 w-28 h-5 bg-[#111] rounded-b-2xl z-20",
+        "x-file-name": "PhoneMockup",
+        "x-line-number": "112",
+        "x-column": "8",
+        "x-component": "div",
+        "x-id": "PhoneMockup_112_8",
+        "x-dynamic": "false"
+      }, void 0, false, {
+        fileName: _jsxFileName,
+        lineNumber: 112,
+        columnNumber: 9
+      }, this), /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("div", {
+        className: "relative bg-[#075E54] pt-3 pb-1 px-5 flex items-center justify-between text-white text-[11px] font-medium",
+        "x-file-name": "PhoneMockup",
+        "x-line-number": "115",
+        "x-column": "8",
+        "x-component": "div",
+        "x-id": "PhoneMockup_115_8",
+        "x-dynamic": "false",
+        children: [/*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("span", {
+          "x-file-name": "PhoneMockup",
+          "x-line-number": "116",
+          "x-column": "10",
+          "x-component": "span",
+          "x-id": "PhoneMockup_116_10",
+          "x-dynamic": "false",
+          children: "9:41"
+        }, void 0, false, {
+          fileName: _jsxFileName,
+          lineNumber: 116,
+          columnNumber: 11
+        }, this), /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("div", {
+          className: "flex items-center gap-1",
+          "x-file-name": "PhoneMockup",
+          "x-line-number": "117",
+          "x-column": "10",
+          "x-component": "div",
+          "x-id": "PhoneMockup_117_10",
+          "x-dynamic": "false",
+          children: [/*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)(_lucideReact.Signal, {
+            className: "w-3 h-3",
+            "x-file-name": "PhoneMockup",
+            "x-line-number": "118",
+            "x-column": "12",
+            "x-component": "Signal",
+            "x-id": "PhoneMockup_118_12",
+            "x-dynamic": "false"
+          }, void 0, false, {
+            fileName: _jsxFileName,
+            lineNumber: 118,
+            columnNumber: 13
+          }, this), /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)(_lucideReact.Wifi, {
+            className: "w-3 h-3",
+            "x-file-name": "PhoneMockup",
+            "x-line-number": "119",
+            "x-column": "12",
+            "x-component": "Wifi",
+            "x-id": "PhoneMockup_119_12",
+            "x-dynamic": "false"
+          }, void 0, false, {
+            fileName: _jsxFileName,
+            lineNumber: 119,
+            columnNumber: 13
+          }, this), /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)(_lucideReact.BatteryFull, {
+            className: "w-3.5 h-3.5",
+            "x-file-name": "PhoneMockup",
+            "x-line-number": "120",
+            "x-column": "12",
+            "x-component": "BatteryFull",
+            "x-id": "PhoneMockup_120_12",
+            "x-dynamic": "false"
+          }, void 0, false, {
+            fileName: _jsxFileName,
+            lineNumber: 120,
+            columnNumber: 13
+          }, this)]
+        }, void 0, true, {
+          fileName: _jsxFileName,
+          lineNumber: 117,
+          columnNumber: 11
+        }, this)]
+      }, void 0, true, {
+        fileName: _jsxFileName,
+        lineNumber: 115,
+        columnNumber: 9
+      }, this), /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("div", {
+        className: "relative bg-[#075E54] px-4 py-3 flex items-center gap-3",
+        "x-file-name": "PhoneMockup",
+        "x-line-number": "125",
+        "x-column": "8",
+        "x-component": "div",
+        "x-id": "PhoneMockup_125_8",
+        "x-dynamic": "false",
+        children: [/*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("img", {
+          src: avatarSrc,
+          alt: parentName,
+          loading: "lazy",
+          className: "w-10 h-10 rounded-full object-cover ring-2 ring-white/20",
+          "x-file-name": "PhoneMockup",
+          "x-line-number": "126",
+          "x-column": "10",
+          "x-component": "img",
+          "x-id": "PhoneMockup_126_10",
+          "x-dynamic": "false"
+        }, void 0, false, {
+          fileName: _jsxFileName,
+          lineNumber: 126,
+          columnNumber: 11
+        }, this), /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("div", {
+          className: "flex-1",
+          "x-file-name": "PhoneMockup",
+          "x-line-number": "132",
+          "x-column": "10",
+          "x-component": "div",
+          "x-id": "PhoneMockup_132_10",
+          "x-dynamic": "false",
+          children: [/*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("p", {
+            className: "text-white text-sm font-semibold leading-tight",
+            "x-file-name": "PhoneMockup",
+            "x-line-number": "133",
+            "x-column": "12",
+            "x-component": "p",
+            "x-id": "PhoneMockup_133_12",
+            "x-dynamic": "true",
+            "x-source-type": "prop",
+            "x-source-var": "parentName",
+            "x-source-editable": "false",
+            children: parentName
+          }, void 0, false, {
+            fileName: _jsxFileName,
+            lineNumber: 133,
+            columnNumber: 13
+          }, this), /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("p", {
+            className: "text-white/60 text-[11px] leading-tight",
+            "x-file-name": "PhoneMockup",
+            "x-line-number": "134",
+            "x-column": "12",
+            "x-component": "p",
+            "x-id": "PhoneMockup_134_12",
+            "x-dynamic": "false",
+            children: "via AYANA \xB7 online"
+          }, void 0, false, {
+            fileName: _jsxFileName,
+            lineNumber: 134,
+            columnNumber: 13
+          }, this)]
+        }, void 0, true, {
+          fileName: _jsxFileName,
+          lineNumber: 132,
+          columnNumber: 11
+        }, this)]
+      }, void 0, true, {
+        fileName: _jsxFileName,
+        lineNumber: 125,
+        columnNumber: 9
+      }, this), /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("div", {
+        className: "relative px-3 py-4 space-y-2.5 min-h-[460px]",
+        style: {
+          background: "repeating-linear-gradient(135deg, #0B141A, #0B141A 40px, #0E191F 40px, #0E191F 80px)"
+        },
+        "x-file-name": "PhoneMockup",
+        "x-line-number": "139",
+        "x-column": "8",
+        "x-component": "div",
+        "x-id": "PhoneMockup_139_8",
+        "x-dynamic": "true",
+        "x-source-type": "computed",
+        "x-source-editable": "false",
+        children: msgs.map((m, i) => {
+          const isAyana = m.from === "ayana";
+          return /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)(_framerMotion.motion.div, {
+            custom: i,
+            initial: "hidden",
+            animate: "show",
+            variants: bubbleVariants,
+            className: `flex flex-col ${isAyana ? "items-start" : "items-end"}`,
+            "x-file-name": "PhoneMockup",
+            "x-line-number": "149",
+            "x-column": "14",
+            "x-component": "div",
+            "x-id": "PhoneMockup_149_14",
+            "x-dynamic": "true",
+            "x-source-type": "computed",
+            "x-source-editable": "false",
+            children: [/*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("div", {
+              className: `max-w-[82%] rounded-2xl px-3.5 py-2 text-[13px] leading-snug shadow ${isAyana ? "bg-[#1F2C34] text-white rounded-tl-sm" : "bg-[#DCF8C6] text-[#111B21] rounded-tr-sm"}`,
+              "x-file-name": "PhoneMockup",
+              "x-line-number": "158",
+              "x-column": "16",
+              "x-component": "div",
+              "x-id": "PhoneMockup_158_16",
+              "x-dynamic": "true",
+              "x-source-type": "computed",
+              "x-source-editable": "false",
+              children: [m.voice ? /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("span", {
+                className: "flex items-center gap-2 py-0.5",
+                "x-file-name": "PhoneMockup",
+                "x-line-number": "166",
+                "x-column": "20",
+                "x-component": "span",
+                "x-id": "PhoneMockup_166_20",
+                "x-dynamic": "false",
+                children: [/*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)(_lucideReact.Mic, {
+                  className: "w-3.5 h-3.5 shrink-0 text-ayana-bright",
+                  "x-file-name": "PhoneMockup",
+                  "x-line-number": "167",
+                  "x-column": "22",
+                  "x-component": "Mic",
+                  "x-id": "PhoneMockup_167_22",
+                  "x-dynamic": "true",
+                  "x-source-type": "external",
+                  "x-source-var": "msgs",
+                  "x-source-editable": "false",
+                  "x-array-var": "msgs",
+                  "x-array-item-param": "m"
+                }, void 0, false, {
+                  fileName: _jsxFileName,
+                  lineNumber: 167,
+                  columnNumber: 23
+                }, this), /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("span", {
+                  className: "flex items-center gap-0.5",
+                  "x-file-name": "PhoneMockup",
+                  "x-line-number": "168",
+                  "x-column": "22",
+                  "x-component": "span",
+                  "x-id": "PhoneMockup_168_22",
+                  "x-dynamic": "true",
+                  "x-source-type": "computed",
+                  "x-source-editable": "false",
+                  children: [3, 6, 4, 8, 5, 7, 3].map((h, idx) => /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("span", {
+                    className: "w-[2.5px] rounded-full bg-ayana-bright/70",
+                    style: {
+                      height: `${h * 2}px`
+                    },
+                    "x-file-name": "PhoneMockup",
+                    "x-line-number": "170",
+                    "x-column": "26",
+                    "x-component": "span",
+                    "x-id": "PhoneMockup_170_26",
+                    "x-dynamic": "false"
+                  }, idx, false, {
+                    fileName: _jsxFileName,
+                    lineNumber: 170,
+                    columnNumber: 27
+                  }, this))
+                }, void 0, false, {
+                  fileName: _jsxFileName,
+                  lineNumber: 168,
+                  columnNumber: 23
+                }, this), /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("span", {
+                  className: "text-[10px] opacity-70",
+                  "x-file-name": "PhoneMockup",
+                  "x-line-number": "177",
+                  "x-column": "22",
+                  "x-component": "span",
+                  "x-id": "PhoneMockup_177_22",
+                  "x-dynamic": "false",
+                  children: "0:04"
+                }, void 0, false, {
+                  fileName: _jsxFileName,
+                  lineNumber: 177,
+                  columnNumber: 23
+                }, this)]
+              }, void 0, true, {
+                fileName: _jsxFileName,
+                lineNumber: 166,
+                columnNumber: 21
+              }, this) : /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("span", {
+                "x-file-name": "PhoneMockup",
+                "x-line-number": "180",
+                "x-column": "20",
+                "x-component": "span",
+                "x-id": "PhoneMockup_180_20",
+                "x-dynamic": "true",
+                "x-source-type": "static-imported",
+                "x-source-var": "msgs",
+                "x-source-path": "text",
+                "x-source-editable": "false",
+                "x-array-var": "msgs",
+                "x-array-item-param": "m",
+                children: m.text
+              }, void 0, false, {
+                fileName: _jsxFileName,
+                lineNumber: 180,
+                columnNumber: 21
+              }, this), /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("span", {
+                className: `flex items-center gap-1 justify-end mt-1 text-[10px] ${isAyana ? "text-white/40" : "text-[#3A4A3F]/70"}`,
+                "x-file-name": "PhoneMockup",
+                "x-line-number": "182",
+                "x-column": "18",
+                "x-component": "span",
+                "x-id": "PhoneMockup_182_18",
+                "x-dynamic": "true",
+                "x-source-type": "static-imported",
+                "x-source-var": "msgs",
+                "x-source-path": "time",
+                "x-source-editable": "false",
+                "x-array-var": "msgs",
+                "x-array-item-param": "m",
+                children: [m.time, !isAyana && /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)(_lucideReact.CheckCheck, {
+                  className: "w-3 h-3 text-[#53BDEB]",
+                  "x-file-name": "PhoneMockup",
+                  "x-line-number": "188",
+                  "x-column": "33",
+                  "x-component": "CheckCheck",
+                  "x-id": "PhoneMockup_188_33",
+                  "x-dynamic": "true",
+                  "x-source-type": "external",
+                  "x-source-var": "msgs",
+                  "x-source-editable": "false",
+                  "x-array-var": "msgs",
+                  "x-array-item-param": "m"
+                }, void 0, false, {
+                  fileName: _jsxFileName,
+                  lineNumber: 188,
+                  columnNumber: 34
+                }, this), isAyana && /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)(_lucideReact.Check, {
+                  className: "w-3 h-3"
+                }, void 0, false, {
+                  fileName: _jsxFileName,
+                  lineNumber: 189,
+                  columnNumber: 33
+                }, this)]
+              }, void 0, true, {
+                fileName: _jsxFileName,
+                lineNumber: 182,
+                columnNumber: 19
+              }, this)]
+            }, void 0, true, {
+              fileName: _jsxFileName,
+              lineNumber: 158,
+              columnNumber: 17
+            }, this), isAyana && m.buttons && /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)(_framerMotion.motion.div, {
+              custom: i + 0.5,
+              initial: "hidden",
+              animate: "show",
+              variants: bubbleVariants,
+              className: "mt-1.5 flex flex-wrap gap-1.5 max-w-[90%]",
+              "x-file-name": "PhoneMockup",
+              "x-line-number": "195",
+              "x-column": "18",
+              "x-component": "div",
+              "x-id": "PhoneMockup_195_18",
+              "x-dynamic": "true",
+              "x-source-type": "computed",
+              "x-source-editable": "false",
+              children: m.buttons.map((btn, bi) => /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("span", {
+                className: "inline-block rounded-full border border-[#00A884]/70 bg-[#0B141A] text-[#00A884] text-[11px] font-medium px-2.5 py-1 leading-none",
+                "x-file-name": "PhoneMockup",
+                "x-line-number": "203",
+                "x-column": "22",
+                "x-component": "span",
+                "x-id": "PhoneMockup_203_22",
+                "x-dynamic": "true",
+                "x-source-type": "static-imported",
+                "x-source-var": "m",
+                "x-source-editable": "false",
+                "x-array-var": "m",
+                "x-array-item-param": "btn",
+                children: btn
+              }, bi, false, {
+                fileName: _jsxFileName,
+                lineNumber: 203,
+                columnNumber: 23
+              }, this))
+            }, void 0, false, {
+              fileName: _jsxFileName,
+              lineNumber: 195,
+              columnNumber: 19
+            }, this)]
+          }, i, true, {
+            fileName: _jsxFileName,
+            lineNumber: 149,
+            columnNumber: 15
+          }, this);
+        })
+      }, void 0, false, {
+        fileName: _jsxFileName,
+        lineNumber: 139,
+        columnNumber: 9
+      }, this)]
+    }, void 0, true, {
+      fileName: _jsxFileName,
+      lineNumber: 110,
+      columnNumber: 7
+    }, this)]
+  }, void 0, true, {
+    fileName: _jsxFileName,
+    lineNumber: 101,
+    columnNumber: 5
+  }, this);
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfZnJhbWVyTW90aW9uIiwicmVxdWlyZSIsIl9sdWNpZGVSZWFjdCIsIl9leHBhbmRlZERlbW8iLCJfanN4RGV2UnVudGltZSIsIl9qc3hGaWxlTmFtZSIsIkJVVFRPTl9MQUJFTFMiLCJlbiIsIm1vb2QiLCJtZWRpY2luZSIsInJlZW5nYWdlbWVudCIsInRlIiwiaGkiLCJidWlsZE1lc3NhZ2VzIiwibGFuZyIsIm5hdGl2ZSIsIm5hdGl2ZURlbW9NZXNzYWdlcyIsImZyb20iLCJ0ZXh0IiwibW9ybmluZyIsInRpbWUiLCJidXR0b25zIiwic2xpY2UiLCJ2b2ljZSIsImxhYmVscyIsImdyZWV0aW5ncyIsInJlcGxpZXMiLCJtZWRDaGVja3MiLCJidWJibGVWYXJpYW50cyIsImhpZGRlbiIsIm9wYWNpdHkiLCJ5Iiwic2NhbGUiLCJzaG93IiwiaSIsInRyYW5zaXRpb24iLCJkZWxheSIsImR1cmF0aW9uIiwiZWFzZSIsIlBob25lTW9ja3VwIiwiYXZhdGFyU3JjIiwicGFyZW50TmFtZSIsIm1lc3NhZ2VzIiwiY2xhc3NOYW1lIiwibXNncyIsImpzeERFViIsImNoaWxkcmVuIiwic3R5bGUiLCJiYWNrZ3JvdW5kIiwiZmlsZU5hbWUiLCJsaW5lTnVtYmVyIiwiY29sdW1uTnVtYmVyIiwiU2lnbmFsIiwiV2lmaSIsIkJhdHRlcnlGdWxsIiwic3JjIiwiYWx0IiwibG9hZGluZyIsIm1hcCIsIm0iLCJpc0F5YW5hIiwibW90aW9uIiwiZGl2IiwiY3VzdG9tIiwiaW5pdGlhbCIsImFuaW1hdGUiLCJ2YXJpYW50cyIsIk1pYyIsImgiLCJpZHgiLCJoZWlnaHQiLCJDaGVja0NoZWNrIiwiQ2hlY2siLCJidG4iLCJiaSJdLCJzb3VyY2VzIjpbIlBob25lTW9ja3VwLmpzeCJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBtb3Rpb24gfSBmcm9tIFwiZnJhbWVyLW1vdGlvblwiO1xyXG5pbXBvcnQgeyBTaWduYWwsIFdpZmksIEJhdHRlcnlGdWxsLCBDaGVjaywgQ2hlY2tDaGVjaywgTWljIH0gZnJvbSBcImx1Y2lkZS1yZWFjdFwiO1xyXG5pbXBvcnQgeyBuYXRpdmVEZW1vTWVzc2FnZXMgfSBmcm9tICdAL2xpYi9leHBhbmRlZERlbW8nO1xyXG5cclxuLyoqXHJcbiAqIFBob25lTW9ja3VwXHJcbiAqIFJldXNhYmxlIGFuaW1hdGVkIFwicGhvbmUgaW4gaGFuZFwiIG1vY2t1cCB0aGF0IHBsYXlzIG91dCBhIFdoYXRzQXBwLXN0eWxlXHJcbiAqIGNoZWNrLWluIGNvbnZlcnNhdGlvbi4gVXNlZCBpbiB0aGUgTGFuZGluZyBoZXJvIChyaWdodCBjb2x1bW4pIOKAlCBidWlsdFxyXG4gKiBhcyBhIHN0YW5kYWxvbmUgY29tcG9uZW50IHNvIGl0IGNhbiBiZSByZXVzZWQgYW55d2hlcmUgZWxzZSBpbiB0aGUgYXBwXHJcbiAqIChlLmcuIG9uYm9hcmRpbmcgcHJldmlldywgbWFya2V0aW5nIHNlY3Rpb25zKSB3aXRob3V0IGNvcHktcGFzdGluZyBtYXJrdXAuXHJcbiAqXHJcbiAqIFByb3BzOlxyXG4gKiAgLSBhdmF0YXJTcmM6IGltYWdlIHVzZWQgYXMgdGhlIHBhcmVudCdzIFdoYXRzQXBwIGF2YXRhclxyXG4gKiAgLSBwYXJlbnROYW1lOiBkaXNwbGF5IG5hbWUgc2hvd24gaW4gdGhlIGNoYXQgaGVhZGVyXHJcbiAqICAtIGxhbmc6IFwiZW5cIiB8IFwidGVcIiB8IFwiaGlcIiAoY29udHJvbHMgYnV0dG9uIGxhYmVscylcclxuICogIC0gbWVzc2FnZXM6IFt7IGZyb206IFwiYXlhbmFcIiB8IFwicGFyZW50XCIsIHRleHQsIHRpbWUsIHZvaWNlPywgYnV0dG9ucz8gfV1cclxuICogICAgV2hlbiBgYnV0dG9uc2AgaXMgcHJvdmlkZWQsIHJlbmRlcnMgV2hhdHNBcHAtc3R5bGUgcXVpY2stcmVwbHkgcGlsbHNcclxuICogICAgYmVsb3cgdGhlIGNoYXQgYnViYmxlLlxyXG4gKi9cclxuXHJcbmNvbnN0IEJVVFRPTl9MQUJFTFMgPSB7XHJcbiAgZW46IHtcclxuICAgIG1vb2Q6IFtcIkdvb2Qg8J+YilwiLCBcIk9rYXkg8J+ZglwiLCBcIk5vdCB3ZWxsIPCfmJ9cIl0sXHJcbiAgICBtZWRpY2luZTogW1wiVGFrZW4g4pyFXCIsIFwiTm90IHlldFwiLCBcIlNraXBwZWRcIl0sXHJcbiAgICByZWVuZ2FnZW1lbnQ6IFtcIkknbSBmaW5lXCIsIFwiTmVlZCBoZWxwXCIsIFwiQ2FsbCBtZVwiXSxcclxuICB9LFxyXG4gIHRlOiB7XHJcbiAgICBtb29kOiBbXCLgsKzgsL7gsJfgsYHgsKjgsY3gsKjgsL4g8J+YilwiLCBcIuCwquCwsOCwteCwvuCwsuCxh+CwpuCxgSDwn5mCXCIsIFwi4LCs4LC+4LCy4LGH4LCm4LGBIPCfmJ9cIl0sXHJcbiAgICBtZWRpY2luZTogW1wi4LC14LGH4LC44LGB4LCV4LGB4LCo4LGN4LCo4LC+IOKchVwiLCBcIuCwh+CwguCwleCwviDgsLLgsYfgsKbgsYFcIiwgXCLgsLXgsYfgsLjgsYHgsJXgsYvgsLLgsYfgsKbgsYFcIl0sXHJcbiAgICByZWVuZ2FnZW1lbnQ6IFtcIuCwqOCxh+CwqOCxgSDgsKzgsL7gsJfgsYHgsKjgsY3gsKjgsL7gsKjgsYFcIiwgXCLgsLjgsLngsL7gsK/gsIIg4LCV4LC+4LC14LC+4LCy4LC/XCIsIFwi4LCV4LC+4LCy4LGNIOCwmuCxh+Cwr+CwguCwoeCwv1wiXSxcclxuICB9LFxyXG4gIGhpOiB7XHJcbiAgICBtb29kOiBbXCLgpIXgpJrgpY3gpJvgpL4g8J+YilwiLCBcIuCkoOClgOCklSDgpLngpYgg8J+ZglwiLCBcIuCkoOClgOCklSDgpKjgpLngpYDgpIIg8J+Yn1wiXSxcclxuICAgIG1lZGljaW5lOiBbXCLgpLLgpYcg4KSy4KS/4KSv4KS+IOKchVwiLCBcIuCkheCkreClgCDgpKjgpLngpYDgpIJcIiwgXCLgpJvgpYvgpKHgpLwg4KSm4KS/4KSv4KS+XCJdLFxyXG4gICAgcmVlbmdhZ2VtZW50OiBbXCLgpK7gpYjgpIIg4KSg4KWA4KSVIOCkueClguCkgVwiLCBcIuCkruCkpuCkpiDgpJrgpL7gpLngpL/gpI9cIiwgXCLgpJXgpYngpLIg4KSV4KWA4KSc4KS/4KSPXCJdLFxyXG4gIH0sXHJcbn07XHJcblxyXG5jb25zdCBidWlsZE1lc3NhZ2VzID0gKGxhbmcgPSBcImVuXCIpID0+IHtcclxuICBjb25zdCBuYXRpdmUgPSBuYXRpdmVEZW1vTWVzc2FnZXNbbGFuZ107XHJcbiAgaWYgKG5hdGl2ZSkgcmV0dXJuIFtcclxuICAgIHsgZnJvbTogJ2F5YW5hJywgdGV4dDogbmF0aXZlLm1vcm5pbmdbMF0sIHRpbWU6ICc4OjAyIEFNJywgYnV0dG9uczogbmF0aXZlLm1vcm5pbmcuc2xpY2UoMSkgfSxcclxuICAgIHsgZnJvbTogJ3BhcmVudCcsIHRleHQ6IG5hdGl2ZS5tb3JuaW5nWzFdLCB0aW1lOiAnODoxNCBBTScgfSxcclxuICAgIHsgZnJvbTogJ2F5YW5hJywgdGV4dDogbmF0aXZlLm1lZGljaW5lWzBdLCB0aW1lOiAnOTowMCBBTScsIGJ1dHRvbnM6IG5hdGl2ZS5tZWRpY2luZS5zbGljZSgxKSB9LFxyXG4gICAgeyBmcm9tOiAncGFyZW50JywgdGV4dDogJycsIHRpbWU6ICc5OjA1IEFNJywgdm9pY2U6IHRydWUgfSxcclxuICBdO1xyXG4gIGNvbnN0IGxhYmVscyA9IEJVVFRPTl9MQUJFTFNbbGFuZ10gfHwgQlVUVE9OX0xBQkVMUy5lbjtcclxuICBjb25zdCBncmVldGluZ3MgPSB7XHJcbiAgICBlbjogXCJHb29kIG1vcm5pbmchIPCfjJ4gSG93IGFyZSB5b3UgZmVlbGluZyB0b2RheT9cIixcclxuICAgIHRlOiBcIuCwtuCxgeCwreCxi+CwpuCwr+CwgiEg8J+MniDgsIjgsLDgsYvgsJzgsYEg4LCO4LCy4LC+IOCwieCwqOCxjeCwqOCwvuCwsOCxgT9cIixcclxuICAgIGhpOiBcIuCkuOClgeCkquCljeCksOCkreCkvuCkpCEg8J+MniDgpIbgpJwg4KSV4KWI4KS44KS+IOCkruCkueCkuOClguCkuCDgpJXgpLAg4KSw4KS54KWHIOCkueCliOCkgj9cIixcclxuICB9O1xyXG4gIC8vIFBhcmVudCB0YXBwZWQgXCJHb29kIPCfmIpcIiDigJQgcmVwbHkgaXMgZXhhY3RseSB0aGUgYnV0dG9uIGxhYmVsXHJcbiAgY29uc3QgcmVwbGllcyA9IHtcclxuICAgIGVuOiBsYWJlbHMubW9vZFswXSwgICAvLyBcIkdvb2Qg8J+YilwiXHJcbiAgICB0ZTogbGFiZWxzLm1vb2RbMF0sICAgLy8gXCLgsKzgsL7gsJfgsYHgsKjgsY3gsKjgsL4g8J+YilwiXHJcbiAgICBoaTogbGFiZWxzLm1vb2RbMF0sICAgLy8gXCLgpIXgpJrgpY3gpJvgpL4g8J+YilwiXHJcbiAgfTtcclxuICBjb25zdCBtZWRDaGVja3MgPSB7XHJcbiAgICBlbjogXCJUaW1lIGZvciB5b3VyIG1vcm5pbmcgdGFibGV0IPCfkoogQ3JvY2luIOKAlCBzbWFsbCB3aGl0ZSBvbmUhXCIsXHJcbiAgICB0ZTogXCLgsK7gsILgsKbgsYHgsLIg4LCf4LGI4LCCIPCfkoogQ3JvY2luIOCwruCwvuCwpOCxjeCwsCDgsLXgsYfgsLjgsYHgsJXgsYvgsILgsKHgsL8hXCIsXHJcbiAgICBoaTogXCLgpKbgpLXgpL7gpIgg4KSV4KS+IOCkuOCkruCkryDwn5KKIENyb2NpbiDgpJfgpYvgpLLgpYAg4KSy4KWH4KSo4KS+IOCkueCliCFcIixcclxuICB9O1xyXG5cclxuICByZXR1cm4gW1xyXG4gICAge1xyXG4gICAgICBmcm9tOiBcImF5YW5hXCIsXHJcbiAgICAgIHRleHQ6IGdyZWV0aW5nc1tsYW5nXSB8fCBncmVldGluZ3MuZW4sXHJcbiAgICAgIHRpbWU6IFwiODowMiBBTVwiLFxyXG4gICAgICBidXR0b25zOiBsYWJlbHMubW9vZCxcclxuICAgIH0sXHJcbiAgICB7IGZyb206IFwicGFyZW50XCIsIHRleHQ6IHJlcGxpZXNbbGFuZ10gfHwgcmVwbGllcy5lbiwgdGltZTogXCI4OjE0IEFNXCIgfSxcclxuICAgIHtcclxuICAgICAgZnJvbTogXCJheWFuYVwiLFxyXG4gICAgICB0ZXh0OiBtZWRDaGVja3NbbGFuZ10gfHwgbWVkQ2hlY2tzLmVuLFxyXG4gICAgICB0aW1lOiBcIjg6MTUgQU1cIixcclxuICAgICAgYnV0dG9uczogbGFiZWxzLm1lZGljaW5lLFxyXG4gICAgfSxcclxuICAgIHsgZnJvbTogXCJwYXJlbnRcIiwgdGV4dDogXCJcIiwgdGltZTogXCI4OjIwIEFNXCIsIHZvaWNlOiB0cnVlIH0sXHJcbiAgXTtcclxufTtcclxuXHJcbmNvbnN0IGJ1YmJsZVZhcmlhbnRzID0ge1xyXG4gIGhpZGRlbjogeyBvcGFjaXR5OiAwLCB5OiAxNiwgc2NhbGU6IDAuOTYgfSxcclxuICBzaG93OiAoaSkgPT4gKHtcclxuICAgIG9wYWNpdHk6IDEsIHk6IDAsIHNjYWxlOiAxLFxyXG4gICAgdHJhbnNpdGlvbjogeyBkZWxheTogMC44ICsgaSAqIDAuNSwgZHVyYXRpb246IDAuNDUsIGVhc2U6IFswLjIyLCAxLCAwLjM2LCAxXSB9LFxyXG4gIH0pLFxyXG59O1xyXG5cclxuZXhwb3J0IGZ1bmN0aW9uIFBob25lTW9ja3VwKHtcclxuICBhdmF0YXJTcmMgPSBcIi9pbWdfcGFyZW50cy53ZWJwXCIsXHJcbiAgcGFyZW50TmFtZSA9IFwiWW91ciBwYXJlbnRcIixcclxuICBsYW5nID0gXCJlblwiLFxyXG4gIG1lc3NhZ2VzLFxyXG4gIGNsYXNzTmFtZSA9IFwiXCIsXHJcbn0pIHtcclxuICBjb25zdCBtc2dzID0gbWVzc2FnZXMgfHwgYnVpbGRNZXNzYWdlcyhsYW5nKTtcclxuXHJcbiAgcmV0dXJuIChcclxuICAgIDxkaXYgY2xhc3NOYW1lPXtgcmVsYXRpdmUgbXgtYXV0byB3LVszMDBweF0gc206dy1bMzIwcHhdICR7Y2xhc3NOYW1lfWB9PlxyXG4gICAgICB7LyogR2xvdyBiZWhpbmQgdGhlIHBob25lICovfVxyXG4gICAgICA8ZGl2XHJcbiAgICAgICAgY2xhc3NOYW1lPVwiYWJzb2x1dGUgLWluc2V0LTYgcm91bmRlZC1bM3JlbV0gYmx1ci0yeGwgb3BhY2l0eS03MFwiXHJcbiAgICAgICAgc3R5bGU9e3sgYmFja2dyb3VuZDogXCJsaW5lYXItZ3JhZGllbnQoMTM1ZGVnLCByZ2JhKDI1NSwxMDcsNTMsMC4zNSksIHJnYmEoMjU1LDIwMSw2MCwwLjI1KSlcIiB9fVxyXG4gICAgICAgIGFyaWEtaGlkZGVuPVwidHJ1ZVwiXHJcbiAgICAgIC8+XHJcblxyXG4gICAgICB7LyogUGhvbmUgY2hhc3NpcyAqL31cclxuICAgICAgPGRpdiBjbGFzc05hbWU9XCJyZWxhdGl2ZSByb3VuZGVkLVsyLjVyZW1dIGJvcmRlci1bNnB4XSBib3JkZXItWyMxMTFdIGJnLVsjMTExXSBzaGFkb3ctMnhsIG92ZXJmbG93LWhpZGRlblwiPlxyXG4gICAgICAgIHsvKiBOb3RjaCAqL31cclxuICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImFic29sdXRlIHRvcC0wIGxlZnQtMS8yIC10cmFuc2xhdGUteC0xLzIgdy0yOCBoLTUgYmctWyMxMTFdIHJvdW5kZWQtYi0yeGwgei0yMFwiIC8+XHJcblxyXG4gICAgICAgIHsvKiBTdGF0dXMgYmFyICovfVxyXG4gICAgICAgIDxkaXYgY2xhc3NOYW1lPVwicmVsYXRpdmUgYmctWyMwNzVFNTRdIHB0LTMgcGItMSBweC01IGZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktYmV0d2VlbiB0ZXh0LXdoaXRlIHRleHQtWzExcHhdIGZvbnQtbWVkaXVtXCI+XHJcbiAgICAgICAgICA8c3Bhbj45OjQxPC9zcGFuPlxyXG4gICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMVwiPlxyXG4gICAgICAgICAgICA8U2lnbmFsIGNsYXNzTmFtZT1cInctMyBoLTNcIiAvPlxyXG4gICAgICAgICAgICA8V2lmaSBjbGFzc05hbWU9XCJ3LTMgaC0zXCIgLz5cclxuICAgICAgICAgICAgPEJhdHRlcnlGdWxsIGNsYXNzTmFtZT1cInctMy41IGgtMy41XCIgLz5cclxuICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgIDwvZGl2PlxyXG5cclxuICAgICAgICB7LyogV2hhdHNBcHAgY2hhdCBoZWFkZXIgKi99XHJcbiAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJyZWxhdGl2ZSBiZy1bIzA3NUU1NF0gcHgtNCBweS0zIGZsZXggaXRlbXMtY2VudGVyIGdhcC0zXCI+XHJcbiAgICAgICAgICA8aW1nXHJcbiAgICAgICAgICAgIHNyYz17YXZhdGFyU3JjfVxyXG4gICAgICAgICAgICBhbHQ9e3BhcmVudE5hbWV9XHJcbiAgICAgICAgICAgIGxvYWRpbmc9XCJsYXp5XCJcclxuICAgICAgICAgICAgY2xhc3NOYW1lPVwidy0xMCBoLTEwIHJvdW5kZWQtZnVsbCBvYmplY3QtY292ZXIgcmluZy0yIHJpbmctd2hpdGUvMjBcIlxyXG4gICAgICAgICAgLz5cclxuICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleC0xXCI+XHJcbiAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtd2hpdGUgdGV4dC1zbSBmb250LXNlbWlib2xkIGxlYWRpbmctdGlnaHRcIj57cGFyZW50TmFtZX08L3A+XHJcbiAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtd2hpdGUvNjAgdGV4dC1bMTFweF0gbGVhZGluZy10aWdodFwiPnZpYSBBWUFOQSDCtyBvbmxpbmU8L3A+XHJcbiAgICAgICAgICA8L2Rpdj5cclxuICAgICAgICA8L2Rpdj5cclxuXHJcbiAgICAgICAgey8qIENoYXQgYm9keSAqL31cclxuICAgICAgICA8ZGl2XHJcbiAgICAgICAgICBjbGFzc05hbWU9XCJyZWxhdGl2ZSBweC0zIHB5LTQgc3BhY2UteS0yLjUgbWluLWgtWzQ2MHB4XVwiXHJcbiAgICAgICAgICBzdHlsZT17e1xyXG4gICAgICAgICAgICBiYWNrZ3JvdW5kOlxyXG4gICAgICAgICAgICAgIFwicmVwZWF0aW5nLWxpbmVhci1ncmFkaWVudCgxMzVkZWcsICMwQjE0MUEsICMwQjE0MUEgNDBweCwgIzBFMTkxRiA0MHB4LCAjMEUxOTFGIDgwcHgpXCIsXHJcbiAgICAgICAgICB9fVxyXG4gICAgICAgID5cclxuICAgICAgICAgIHttc2dzLm1hcCgobSwgaSkgPT4ge1xyXG4gICAgICAgICAgICBjb25zdCBpc0F5YW5hID0gbS5mcm9tID09PSBcImF5YW5hXCI7XHJcbiAgICAgICAgICAgIHJldHVybiAoXHJcbiAgICAgICAgICAgICAgPG1vdGlvbi5kaXZcclxuICAgICAgICAgICAgICAgIGtleT17aX1cclxuICAgICAgICAgICAgICAgIGN1c3RvbT17aX1cclxuICAgICAgICAgICAgICAgIGluaXRpYWw9XCJoaWRkZW5cIlxyXG4gICAgICAgICAgICAgICAgYW5pbWF0ZT1cInNob3dcIlxyXG4gICAgICAgICAgICAgICAgdmFyaWFudHM9e2J1YmJsZVZhcmlhbnRzfVxyXG4gICAgICAgICAgICAgICAgY2xhc3NOYW1lPXtgZmxleCBmbGV4LWNvbCAke2lzQXlhbmEgPyBcIml0ZW1zLXN0YXJ0XCIgOiBcIml0ZW1zLWVuZFwifWB9XHJcbiAgICAgICAgICAgICAgPlxyXG4gICAgICAgICAgICAgICAgey8qIE1lc3NhZ2UgYnViYmxlICovfVxyXG4gICAgICAgICAgICAgICAgPGRpdlxyXG4gICAgICAgICAgICAgICAgICBjbGFzc05hbWU9e2BtYXgtdy1bODIlXSByb3VuZGVkLTJ4bCBweC0zLjUgcHktMiB0ZXh0LVsxM3B4XSBsZWFkaW5nLXNudWcgc2hhZG93ICR7XHJcbiAgICAgICAgICAgICAgICAgICAgaXNBeWFuYVxyXG4gICAgICAgICAgICAgICAgICAgICAgPyBcImJnLVsjMUYyQzM0XSB0ZXh0LXdoaXRlIHJvdW5kZWQtdGwtc21cIlxyXG4gICAgICAgICAgICAgICAgICAgICAgOiBcImJnLVsjRENGOEM2XSB0ZXh0LVsjMTExQjIxXSByb3VuZGVkLXRyLXNtXCJcclxuICAgICAgICAgICAgICAgICAgfWB9XHJcbiAgICAgICAgICAgICAgICA+XHJcbiAgICAgICAgICAgICAgICAgIHttLnZvaWNlID8gKFxyXG4gICAgICAgICAgICAgICAgICAgIDxzcGFuIGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGdhcC0yIHB5LTAuNVwiPlxyXG4gICAgICAgICAgICAgICAgICAgICAgPE1pYyBjbGFzc05hbWU9XCJ3LTMuNSBoLTMuNSBzaHJpbmstMCB0ZXh0LWF5YW5hLWJyaWdodFwiIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMC41XCI+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIHtbMywgNiwgNCwgOCwgNSwgNywgM10ubWFwKChoLCBpZHgpID0+IChcclxuICAgICAgICAgICAgICAgICAgICAgICAgICA8c3BhblxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAga2V5PXtpZHh9XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICBjbGFzc05hbWU9XCJ3LVsyLjVweF0gcm91bmRlZC1mdWxsIGJnLWF5YW5hLWJyaWdodC83MFwiXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICBzdHlsZT17eyBoZWlnaHQ6IGAke2ggKiAyfXB4YCB9fVxyXG4gICAgICAgICAgICAgICAgICAgICAgICAgIC8+XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICkpfVxyXG4gICAgICAgICAgICAgICAgICAgICAgPC9zcGFuPlxyXG4gICAgICAgICAgICAgICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPVwidGV4dC1bMTBweF0gb3BhY2l0eS03MFwiPjA6MDQ8L3NwYW4+XHJcbiAgICAgICAgICAgICAgICAgICAgPC9zcGFuPlxyXG4gICAgICAgICAgICAgICAgICApIDogKFxyXG4gICAgICAgICAgICAgICAgICAgIDxzcGFuPnttLnRleHR9PC9zcGFuPlxyXG4gICAgICAgICAgICAgICAgICApfVxyXG4gICAgICAgICAgICAgICAgICA8c3BhblxyXG4gICAgICAgICAgICAgICAgICAgIGNsYXNzTmFtZT17YGZsZXggaXRlbXMtY2VudGVyIGdhcC0xIGp1c3RpZnktZW5kIG10LTEgdGV4dC1bMTBweF0gJHtcclxuICAgICAgICAgICAgICAgICAgICAgIGlzQXlhbmEgPyBcInRleHQtd2hpdGUvNDBcIiA6IFwidGV4dC1bIzNBNEEzRl0vNzBcIlxyXG4gICAgICAgICAgICAgICAgICAgIH1gfVxyXG4gICAgICAgICAgICAgICAgICA+XHJcbiAgICAgICAgICAgICAgICAgICAge20udGltZX1cclxuICAgICAgICAgICAgICAgICAgICB7IWlzQXlhbmEgJiYgPENoZWNrQ2hlY2sgY2xhc3NOYW1lPVwidy0zIGgtMyB0ZXh0LVsjNTNCREVCXVwiIC8+fVxyXG4gICAgICAgICAgICAgICAgICAgIHtpc0F5YW5hICYmIDxDaGVjayBjbGFzc05hbWU9XCJ3LTMgaC0zXCIgLz59XHJcbiAgICAgICAgICAgICAgICAgIDwvc3Bhbj5cclxuICAgICAgICAgICAgICAgIDwvZGl2PlxyXG5cclxuICAgICAgICAgICAgICAgIHsvKiBRdWljay1yZXBseSBidXR0b24gcGlsbHMg4oCUIG9ubHkgb24gQVlBTkEgbWVzc2FnZXMgKi99XHJcbiAgICAgICAgICAgICAgICB7aXNBeWFuYSAmJiBtLmJ1dHRvbnMgJiYgKFxyXG4gICAgICAgICAgICAgICAgICA8bW90aW9uLmRpdlxyXG4gICAgICAgICAgICAgICAgICAgIGN1c3RvbT17aSArIDAuNX1cclxuICAgICAgICAgICAgICAgICAgICBpbml0aWFsPVwiaGlkZGVuXCJcclxuICAgICAgICAgICAgICAgICAgICBhbmltYXRlPVwic2hvd1wiXHJcbiAgICAgICAgICAgICAgICAgICAgdmFyaWFudHM9e2J1YmJsZVZhcmlhbnRzfVxyXG4gICAgICAgICAgICAgICAgICAgIGNsYXNzTmFtZT1cIm10LTEuNSBmbGV4IGZsZXgtd3JhcCBnYXAtMS41IG1heC13LVs5MCVdXCJcclxuICAgICAgICAgICAgICAgICAgPlxyXG4gICAgICAgICAgICAgICAgICAgIHttLmJ1dHRvbnMubWFwKChidG4sIGJpKSA9PiAoXHJcbiAgICAgICAgICAgICAgICAgICAgICA8c3BhblxyXG4gICAgICAgICAgICAgICAgICAgICAgICBrZXk9e2JpfVxyXG4gICAgICAgICAgICAgICAgICAgICAgICBjbGFzc05hbWU9XCJpbmxpbmUtYmxvY2sgcm91bmRlZC1mdWxsIGJvcmRlciBib3JkZXItWyMwMEE4ODRdLzcwIGJnLVsjMEIxNDFBXSB0ZXh0LVsjMDBBODg0XSB0ZXh0LVsxMXB4XSBmb250LW1lZGl1bSBweC0yLjUgcHktMSBsZWFkaW5nLW5vbmVcIlxyXG4gICAgICAgICAgICAgICAgICAgICAgPlxyXG4gICAgICAgICAgICAgICAgICAgICAgICB7YnRufVxyXG4gICAgICAgICAgICAgICAgICAgICAgPC9zcGFuPlxyXG4gICAgICAgICAgICAgICAgICAgICkpfVxyXG4gICAgICAgICAgICAgICAgICA8L21vdGlvbi5kaXY+XHJcbiAgICAgICAgICAgICAgICApfVxyXG4gICAgICAgICAgICAgIDwvbW90aW9uLmRpdj5cclxuICAgICAgICAgICAgKTtcclxuICAgICAgICAgIH0pfVxyXG4gICAgICAgIDwvZGl2PlxyXG4gICAgICA8L2Rpdj5cclxuICAgIDwvZGl2PlxyXG4gICk7XHJcbn1cclxuIl0sIm1hcHBpbmdzIjoiOzs7Ozs7QUFBQSxJQUFBQSxhQUFBLEdBQUFDLE9BQUE7QUFDQSxJQUFBQyxZQUFBLEdBQUFELE9BQUE7QUFDQSxJQUFBRSxhQUFBLEdBQUFGLE9BQUE7QUFBd0QsSUFBQUcsY0FBQSxHQUFBSCxPQUFBO0FBQUEsSUFBQUksWUFBQTtBQUV4RDtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFFQSxNQUFNQyxhQUFhLEdBQUc7RUFDcEJDLEVBQUUsRUFBRTtJQUNGQyxJQUFJLEVBQUUsQ0FBQyxTQUFTLEVBQUUsU0FBUyxFQUFFLGFBQWEsQ0FBQztJQUMzQ0MsUUFBUSxFQUFFLENBQUMsU0FBUyxFQUFFLFNBQVMsRUFBRSxTQUFTLENBQUM7SUFDM0NDLFlBQVksRUFBRSxDQUFDLFVBQVUsRUFBRSxXQUFXLEVBQUUsU0FBUztFQUNuRCxDQUFDO0VBQ0RDLEVB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

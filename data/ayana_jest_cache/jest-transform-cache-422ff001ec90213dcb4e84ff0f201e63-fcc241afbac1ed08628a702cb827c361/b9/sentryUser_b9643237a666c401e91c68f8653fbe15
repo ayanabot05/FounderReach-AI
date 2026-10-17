@@ -1,0 +1,25 @@
+909bf8296207de4570af43e4fec4b306
+"use strict";
+
+var _interopRequireWildcard = require("C:/Users/gunak/Downloads/ayana_whatsapp/frontend/node_modules/@babel/runtime/helpers/interopRequireWildcard.js").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.clearSentryUser = clearSentryUser;
+exports.setSentryUser = setSentryUser;
+var Sentry = _interopRequireWildcard(require("@sentry/react"));
+// Sentry user context helpers · call after login/logout so Sentry events
+// are correlated to the real founder-visible user, not anonymous.
+// No-op if Sentry isn't initialized (missing DSN).
+
+function setSentryUser(user) {
+  if (!(user !== null && user !== void 0 && user.id)) return;
+  Sentry.setUser({
+    id: String(user.id),
+    email: user.email
+  });
+}
+function clearSentryUser() {
+  Sentry.setUser(null);
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJTZW50cnkiLCJfaW50ZXJvcFJlcXVpcmVXaWxkY2FyZCIsInJlcXVpcmUiLCJzZXRTZW50cnlVc2VyIiwidXNlciIsImlkIiwic2V0VXNlciIsIlN0cmluZyIsImVtYWlsIiwiY2xlYXJTZW50cnlVc2VyIl0sInNvdXJjZXMiOlsic2VudHJ5VXNlci5qcyJdLCJzb3VyY2VzQ29udGVudCI6WyIvLyBTZW50cnkgdXNlciBjb250ZXh0IGhlbHBlcnMgwrcgY2FsbCBhZnRlciBsb2dpbi9sb2dvdXQgc28gU2VudHJ5IGV2ZW50c1xuLy8gYXJlIGNvcnJlbGF0ZWQgdG8gdGhlIHJlYWwgZm91bmRlci12aXNpYmxlIHVzZXIsIG5vdCBhbm9ueW1vdXMuXG4vLyBOby1vcCBpZiBTZW50cnkgaXNuJ3QgaW5pdGlhbGl6ZWQgKG1pc3NpbmcgRFNOKS5cbmltcG9ydCAqIGFzIFNlbnRyeSBmcm9tIFwiQHNlbnRyeS9yZWFjdFwiO1xuXG5leHBvcnQgZnVuY3Rpb24gc2V0U2VudHJ5VXNlcih1c2VyKSB7XG4gIGlmICghdXNlcj8uaWQpIHJldHVybjtcbiAgU2VudHJ5LnNldFVzZXIoe1xuICAgIGlkOiBTdHJpbmcodXNlci5pZCksXG4gICAgZW1haWw6IHVzZXIuZW1haWwsXG4gIH0pO1xufVxuXG5leHBvcnQgZnVuY3Rpb24gY2xlYXJTZW50cnlVc2VyKCkge1xuICBTZW50cnkuc2V0VXNlcihudWxsKTtcbn1cbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7QUFHQSxJQUFBQSxNQUFBLEdBQUFDLHVCQUFBLENBQUFDLE9BQUE7QUFIQTtBQUNBO0FBQ0E7O0FBR08sU0FBU0MsYUFBYUEsQ0FBQ0MsSUFBSSxFQUFFO0VBQ2xDLElBQUksRUFBQ0EsSUFBSSxhQUFKQSxJQUFJLGVBQUpBLElBQUksQ0FBRUMsRUFBRSxHQUFFO0VBQ2ZMLE1BQU0sQ0FBQ00sT0FBTyxDQUFDO0lBQ2JELEVBQUUsRUFBRUUsTUFBTSxDQUFDSCxJQUFJLENBQUNDLEVBQUUsQ0FBQztJQUNuQkcsS0FBSyxFQUFFSixJQUFJLENBQUNJO0VBQ2QsQ0FBQyxDQUFDO0FBQ0o7QUFFTyxTQUFTQyxlQUFlQSxDQUFBLEVBQUc7RUFDaENULE1BQU0sQ0FBQ00sT0FBTyxDQUFDLElBQUksQ0FBQztBQUN0QiIsImlnbm9yZUxpc3QiOltdfQ==

@@ -1,0 +1,110 @@
+533912d949b684504f3307c9d71e2592
+"use strict";
+
+var _interopRequireDefault = require("C:/Users/gunak/Downloads/ayana_whatsapp/frontend/node_modules/@babel/runtime/helpers/interopRequireDefault.js").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Logo = Logo;
+exports.default = void 0;
+var _react = _interopRequireDefault(require("react"));
+var _jsxDevRuntime = require("react/jsx-dev-runtime");
+var _jsxFileName = "C:\\Users\\gunak\\Downloads\\ayana_whatsapp\\frontend\\src\\components\\Logo.jsx";
+/**
+ * Logo.jsx — AYANA new brand mark
+ * Uses the compressed A-bridge illustration from /public/ayana_logo.webp
+ * 
+ * Props:
+ *   size      - height in px (default 40 for header)
+ *   showWord  - false = show only the A-bridge icon part (cropped), true = full logo with AYANA text
+ *   className - wrapper classes
+ */
+function Logo({
+  size = 40,
+  showWord = true,
+  className = ""
+}) {
+  // When showWord=false (header), we want a square icon. 
+  // Since your file includes "AYANA" text at bottom, we crop it with object-position
+  // For perfect header, later save a second file as public/ayana_mark.png (just the A)
+
+  if (!showWord) {
+    return /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("span", {
+      className: `inline-flex items-center justify-center overflow-hidden ${className}`,
+      style: {
+        width: size,
+        height: size
+      },
+      "x-file-name": "Logo",
+      "x-line-number": "19",
+      "x-column": "6",
+      "x-component": "span",
+      "x-id": "Logo_19_6",
+      "x-dynamic": "false",
+      children: /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("img", {
+        src: "/ayana_logo.webp",
+        alt: "AYANA",
+        className: "w-full h-full object-contain",
+        style: {
+          objectFit: 'contain',
+          // This zooms to show mostly the top 75% (the A-bridge) and hides the big AYANA text
+          transform: 'scale(1.35)',
+          transformOrigin: 'top center'
+        },
+        "x-file-name": "Logo",
+        "x-line-number": "21",
+        "x-column": "8",
+        "x-component": "img",
+        "x-id": "Logo_21_8",
+        "x-dynamic": "false"
+      }, void 0, false, {
+        fileName: _jsxFileName,
+        lineNumber: 21,
+        columnNumber: 9
+      }, this)
+    }, void 0, false, {
+      fileName: _jsxFileName,
+      lineNumber: 19,
+      columnNumber: 7
+    }, this);
+  }
+
+  // Full logo with AYANA text - for login, footer, hero
+  return /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("span", {
+    className: `inline-flex items-center ${className}`,
+    "x-file-name": "Logo",
+    "x-line-number": "38",
+    "x-column": "4",
+    "x-component": "span",
+    "x-id": "Logo_38_4",
+    "x-dynamic": "false",
+    children: /*#__PURE__*/(0, _jsxDevRuntime.jsxDEV)("img", {
+      src: "/ayana_logo.webp",
+      alt: "AYANA - Connecting Hearts Across Miles",
+      width: size * 2.8,
+      height: size * 1.8,
+      className: "object-contain",
+      style: {
+        height: size * 1.6,
+        width: 'auto',
+        maxWidth: '100%'
+      },
+      "x-file-name": "Logo",
+      "x-line-number": "39",
+      "x-column": "6",
+      "x-component": "img",
+      "x-id": "Logo_39_6",
+      "x-dynamic": "false"
+    }, void 0, false, {
+      fileName: _jsxFileName,
+      lineNumber: 39,
+      columnNumber: 7
+    }, this)
+  }, void 0, false, {
+    fileName: _jsxFileName,
+    lineNumber: 38,
+    columnNumber: 5
+  }, this);
+}
+var _default = exports.default = Logo;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfcmVhY3QiLCJfaW50ZXJvcFJlcXVpcmVEZWZhdWx0IiwicmVxdWlyZSIsIl9qc3hEZXZSdW50aW1lIiwiX2pzeEZpbGVOYW1lIiwiTG9nbyIsInNpemUiLCJzaG93V29yZCIsImNsYXNzTmFtZSIsImpzeERFViIsInN0eWxlIiwid2lkdGgiLCJoZWlnaHQiLCJjaGlsZHJlbiIsInNyYyIsImFsdCIsIm9iamVjdEZpdCIsInRyYW5zZm9ybSIsInRyYW5zZm9ybU9yaWdpbiIsImZpbGVOYW1lIiwibGluZU51bWJlciIsImNvbHVtbk51bWJlciIsIm1heFdpZHRoIiwiX2RlZmF1bHQiLCJleHBvcnRzIiwiZGVmYXVsdCJdLCJzb3VyY2VzIjpbIkxvZ28uanN4Il0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxuICogTG9nby5qc3gg4oCUIEFZQU5BIG5ldyBicmFuZCBtYXJrXG4gKiBVc2VzIHRoZSBjb21wcmVzc2VkIEEtYnJpZGdlIGlsbHVzdHJhdGlvbiBmcm9tIC9wdWJsaWMvYXlhbmFfbG9nby53ZWJwXG4gKiBcbiAqIFByb3BzOlxuICogICBzaXplICAgICAgLSBoZWlnaHQgaW4gcHggKGRlZmF1bHQgNDAgZm9yIGhlYWRlcilcbiAqICAgc2hvd1dvcmQgIC0gZmFsc2UgPSBzaG93IG9ubHkgdGhlIEEtYnJpZGdlIGljb24gcGFydCAoY3JvcHBlZCksIHRydWUgPSBmdWxsIGxvZ28gd2l0aCBBWUFOQSB0ZXh0XG4gKiAgIGNsYXNzTmFtZSAtIHdyYXBwZXIgY2xhc3Nlc1xuICovXG5pbXBvcnQgUmVhY3QgZnJvbSBcInJlYWN0XCI7XG5cbmV4cG9ydCBmdW5jdGlvbiBMb2dvKHsgc2l6ZSA9IDQwLCBzaG93V29yZCA9IHRydWUsIGNsYXNzTmFtZSA9IFwiXCIgfSkge1xuICAvLyBXaGVuIHNob3dXb3JkPWZhbHNlIChoZWFkZXIpLCB3ZSB3YW50IGEgc3F1YXJlIGljb24uIFxuICAvLyBTaW5jZSB5b3VyIGZpbGUgaW5jbHVkZXMgXCJBWUFOQVwiIHRleHQgYXQgYm90dG9tLCB3ZSBjcm9wIGl0IHdpdGggb2JqZWN0LXBvc2l0aW9uXG4gIC8vIEZvciBwZXJmZWN0IGhlYWRlciwgbGF0ZXIgc2F2ZSBhIHNlY29uZCBmaWxlIGFzIHB1YmxpYy9heWFuYV9tYXJrLnBuZyAoanVzdCB0aGUgQSlcbiAgXG4gIGlmICghc2hvd1dvcmQpIHtcbiAgICByZXR1cm4gKFxuICAgICAgPHNwYW4gY2xhc3NOYW1lPXtgaW5saW5lLWZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktY2VudGVyIG92ZXJmbG93LWhpZGRlbiAke2NsYXNzTmFtZX1gfSBcbiAgICAgICAgICAgIHN0eWxlPXt7IHdpZHRoOiBzaXplLCBoZWlnaHQ6IHNpemUgfX0+XG4gICAgICAgIDxpbWdcbiAgICAgICAgICBzcmM9XCIvYXlhbmFfbG9nby53ZWJwXCJcbiAgICAgICAgICBhbHQ9XCJBWUFOQVwiXG4gICAgICAgICAgY2xhc3NOYW1lPVwidy1mdWxsIGgtZnVsbCBvYmplY3QtY29udGFpblwiXG4gICAgICAgICAgc3R5bGU9e3sgXG4gICAgICAgICAgICBvYmplY3RGaXQ6ICdjb250YWluJyxcbiAgICAgICAgICAgIC8vIFRoaXMgem9vbXMgdG8gc2hvdyBtb3N0bHkgdGhlIHRvcCA3NSUgKHRoZSBBLWJyaWRnZSkgYW5kIGhpZGVzIHRoZSBiaWcgQVlBTkEgdGV4dFxuICAgICAgICAgICAgdHJhbnNmb3JtOiAnc2NhbGUoMS4zNSknLFxuICAgICAgICAgICAgdHJhbnNmb3JtT3JpZ2luOiAndG9wIGNlbnRlcidcbiAgICAgICAgICB9fVxuICAgICAgICAvPlxuICAgICAgPC9zcGFuPlxuICAgICk7XG4gIH1cblxuICAvLyBGdWxsIGxvZ28gd2l0aCBBWUFOQSB0ZXh0IC0gZm9yIGxvZ2luLCBmb290ZXIsIGhlcm9cbiAgcmV0dXJuIChcbiAgICA8c3BhbiBjbGFzc05hbWU9e2BpbmxpbmUtZmxleCBpdGVtcy1jZW50ZXIgJHtjbGFzc05hbWV9YH0+XG4gICAgICA8aW1nXG4gICAgICAgIHNyYz1cIi9heWFuYV9sb2dvLndlYnBcIlxuICAgICAgICBhbHQ9XCJBWUFOQSAtIENvbm5lY3RpbmcgSGVhcnRzIEFjcm9zcyBNaWxlc1wiXG4gICAgICAgIHdpZHRoPXtzaXplICogMi44fVxuICAgICAgICBoZWlnaHQ9e3NpemUgKiAxLjh9XG4gICAgICAgIGNsYXNzTmFtZT1cIm9iamVjdC1jb250YWluXCJcbiAgICAgICAgc3R5bGU9e3sgaGVpZ2h0OiBzaXplICogMS42LCB3aWR0aDogJ2F1dG8nLCBtYXhXaWR0aDogJzEwMCUnIH19XG4gICAgICAvPlxuICAgIDwvc3Bhbj5cbiAgKTtcbn1cblxuZXhwb3J0IGRlZmF1bHQgTG9nbztcbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7QUFTQSxJQUFBQSxNQUFBLEdBQUFDLHNCQUFBLENBQUFDLE9BQUE7QUFBMEIsSUFBQUMsY0FBQSxHQUFBRCxPQUFBO0FBQUEsSUFBQUUsWUFBQTtBQVQxQjtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFHTyxTQUFTQyxJQUFJQSxDQUFDO0VBQUVDLElBQUksR0FBRyxFQUFFO0VBQUVDLFFBQVEsR0FBRyxJQUFJO0VBQUVDLFNBQVMsR0FBRztBQUFHLENBQUMsRUFBRTtFQUNuRTtFQUNBO0VBQ0E7O0VBRUEsSUFBSSxDQUFDRCxRQUFRLEVBQUU7SUFDYixvQkFDRSxJQUFBSixjQUFBLENBQUFNLE1BQUE7TUFBTUQsU0FBUyxFQUFFLDJEQUEyREEsU0FBUyxFQUFHO01BQ2xGRSxLQUFLLEVBQUU7UUFBRUMsS0FBSyxFQUFFTCxJQUFJO1FBQUVNLE1BQU0sRUFBRU47TUFBSyxDQUFFO01BQUE7TUFBQTtNQUFBO01BQUE7TUFBQTtNQUFBO01BQUFPLFFBQUEsZUFDekMsSUFBQVYsY0FBQSxDQUFBTSxNQUFBO1FBQ0VLLEdBQUcsRUFBQyxrQkFBa0I7UUFDdEJDLEdBQUcsRUFBQyxPQUFPO1FBQ1hQLFNBQVMsRUFBQyw4QkFBOEI7UUFDeENFLEtBQUssRUFBRTtVQUNMTSxTQUFTLEVBQUUsU0FBUztVQUNwQjtVQUNBQyxTQUFTLEVBQUUsYUFBYTtVQUN4QkMsZUFBZSxFQUFFO1FBQ25CLENBQUU7UUFBQTtRQUFBO1FBQUE7UUFBQTtRQUFBO1FBQUE7TUFBQTtRQUFBQyxRQUFBLEVBQUFmLFlBQUE7UUFBQWdCLFVBQUE7UUFBQUMsWUFBQTtNQUFBLE9BQ0g7SUFBQztNQUFBRixRQUFBLEVBQUFmLFlBQUE7TUFBQWdCLFVBQUE7TUFBQUMsWUFBQTtJQUFBLE9BQ0UsQ0FBQztFQUVYOztFQUVBO0VBQ0Esb0JBQ0UsSUFBQWxCLGNBQUEsQ0FBQU0sTUFBQTtJQUFNRCxTQUFTLEVBQUUsNEJBQTRCQSxTQUFTLEVBQUc7SUFBQTtJQUFBO0lBQUE7SUFBQTtJQUFBO0lBQUE7SUFBQUssUUFBQSxlQUN2RCxJQUFBVixjQUFBLENBQUFNLE1BQUE7TUFDRUssR0FBRyxFQUFDLGtCQUFrQjtNQUN0QkMsR0FBRyxFQUFDLHdDQUF3QztNQUM1Q0osS0FBSyxFQUFFTCxJQUFJLEdBQUcsR0FBSTtNQUNsQk0sTUFBTSxFQUFFTixJQUFJLEdBQUcsR0FBSTtNQUNuQkUsU0FBUyxFQUFDLGdCQUFnQjtNQUMxQkUsS0FBSyxFQUFFO1FBQUVFLE1BQU0sRUFBRU4sSUFBSSxHQUFHLEdBQUc7UUFBRUssS0FBSyxFQUFFLE1BQU07UUFBRVcsUUFBUSxFQUFFO01BQU8sQ0FBRTtNQUFBO01BQUE7TUFBQTtNQUFBO01BQUE7TUFBQTtJQUFBO01BQUFILFFBQUEsRUFBQWYsWUFBQTtNQUFBZ0IsVUFBQTtNQUFBQyxZQUFBO0lBQUEsT0FDaEU7RUFBQztJQUFBRixRQUFBLEVBQUFmLFlBQUE7SUFBQWdCLFVBQUE7SUFBQUMsWUFBQTtFQUFBLE9BQ0UsQ0FBQztBQUVYO0FBQUMsSUFBQUUsUUFBQSxHQUFBQyxPQUFBLENBQUFDLE9BQUEsR0FFY3BCLElBQUkiLCJpZ25vcmVMaXN0IjpbXX0=

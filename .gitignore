@@ -1,0 +1,80 @@
+.env
+data/*.db
+__pycache__/
+.pytest_cache/
+*.pyc
+.local_pg_ayana/
+.test_tmp_*/
+.jest_cache_brand/
+ayana_local_api.stdout.log
+ayana_local_api.stderr.log
+
+
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*service-account*.json
+*credentials*.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+build/
+dist/
+
+# Testing and benchmarks
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.benchmarks/
+.jest_cache_brand/
+.test_tmp_*/
+.tox/
+.nox/
+
+# Local databases
+.local_pg_ayana/
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+
+# Node.js
+node_modules/
+.npm/
+.next/
+coverage/
+*.tsbuildinfo
+
+# Generated output
+reports/generated/
+reports/tmp/
+data/tmp/
+data/cache/
+*.log
+logs/
+
+# OS and IDE
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.example.json
+.idea/
+
+# Deployment caches
+.vercel/
+.terraform/
+*.tfstate
+*.tfstate.*

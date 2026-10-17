@@ -1,0 +1,55 @@
+5c3a5f0af9c02a6298c08c247d391cd8
+{
+  "whatsapp-check-ins-for-parents": {
+    "title": "WhatsApp Check-ins for Parents | AYANA",
+    "description": "Set up scheduled WhatsApp check-ins for parents living away from you. See how replies, local time zones and family updates work with AYANA.",
+    "heading": "WhatsApp check-ins for parents who live far away",
+    "intro": "A short, familiar message can make it easier to stay in touch between calls. AYANA sends scheduled check-ins to a parent's WhatsApp number and shows their replies to the family member who set up care.",
+    "image": "/ayana_amma.webp",
+    "imageAlt": "An older parent smiling at home",
+    "sections": [
+      {"heading": "How the check-ins work", "body": "Choose a parent, their local time zone and the times that fit their day. AYANA sends the selected WhatsApp messages on that schedule. Parents can reply in WhatsApp without installing another app; the account owner can review responses in the dashboard."},
+      {"heading": "What families can customize", "body": "You can choose daily check-in times and supported message languages, including English, Telugu, Hindi, Tamil, Gujarati and Punjabi. Plans have different limits, so review the current plan details before subscribing."},
+      {"heading": "A companion to your calls", "body": "A missed reply is a reason to check in personally, not proof of a problem. AYANA helps families notice messages and responses; it does not monitor a person's health or provide emergency response."}
+    ],
+    "questions": [
+      {"question": "Does my parent need to install an app?", "answer": "No. Parents use WhatsApp; the family member managing care uses the AYANA dashboard."},
+      {"question": "Will messages follow my parent's time zone?", "answer": "Yes. Set the parent's location and local schedule during setup."}
+    ]
+  },
+  "medicine-reminders-for-parents": {
+    "title": "WhatsApp Medicine Reminders for Parents | AYANA",
+    "description": "Help parents remember medicines with scheduled WhatsApp reminders and reply updates. Learn what AYANA can and cannot do for family care.",
+    "heading": "Medicine reminders for parents on WhatsApp",
+    "intro": "When you live in another city or country, a consistent reminder can support a parent's routine. AYANA lets a family member set medicine reminder times and sends the selected reminders through WhatsApp.",
+    "image": "/ayana_hands.webp",
+    "imageAlt": "Older hands holding a phone",
+    "sections": [
+      {"heading": "Set a familiar routine", "body": "Add the medicine details and reminder time while setting up a parent. The reminders follow the parent's local schedule, and the parent can respond in WhatsApp. The dashboard helps you see available replies."},
+      {"heading": "Keep information current", "body": "Use the medicine name and instructions provided by the parent's clinician or pharmacist. Update the schedule when their care changes. AYANA does not verify prescriptions or decide doses."},
+      {"heading": "Know the limits", "body": "A sent reminder does not confirm that medicine was taken. If a reply is missing or there is an urgent concern, contact the parent or a local caregiver directly. AYANA is not a medical or emergency service."}
+    ],
+    "questions": [
+      {"question": "How can I set up automated reminders for an aging parent?", "answer": "Add your parent's WhatsApp number, local time zone and medicine reminder times in AYANA. Choose the reminders that fit their routine and confirm they consent to receiving messages. AYANA sends the configured reminders; a family member should still check in personally when needed."},
+      {"question": "Can a parent reply to a reminder?", "answer": "Yes. Parents can respond in WhatsApp, and the account owner can review replies in AYANA."},
+      {"question": "Can AYANA replace a doctor or caregiver?", "answer": "No. It is a communication and reminder tool for families."}
+    ]
+  },
+  "nri-parent-care": {
+    "title": "Staying in Touch With Parents in India From Abroad | AYANA",
+    "description": "A practical way for families abroad to plan WhatsApp check-ins and medicine reminders for parents in India across time zones.",
+    "heading": "Stay close to parents in India while living abroad",
+    "intro": "Different time zones and busy workdays can make regular contact harder. AYANA helps families abroad plan simple WhatsApp check-ins for parents in India while keeping personal calls at the center of care.",
+    "image": "/ayana_nanna.webp",
+    "imageAlt": "Older family member at home",
+    "sections": [
+      {"heading": "Work around the time difference", "body": "Choose times in your parent's local time zone, so a morning check-in reaches them in their morning even when it is night for you. You can review their replies later in your dashboard."},
+      {"heading": "Use the language they prefer", "body": "AYANA supports English, Telugu, Hindi, Tamil, Gujarati and Punjabi for family check-ins. Parents receive messages in WhatsApp and do not need a separate app."},
+      {"heading": "Keep a real family connection", "body": "Automated messages can help maintain a routine between conversations. They do not replace a call, visit, local caregiver or emergency contact when your parent needs personal help."}
+    ],
+    "questions": [
+      {"question": "Can I set up care from outside India?", "answer": "Yes. You can configure the parent's details and local schedule from abroad, subject to the available payment and messaging options shown during setup."},
+      {"question": "Does AYANA call my parent?", "answer": "No. AYANA sends configured WhatsApp messages and shows available replies. You remain responsible for calling and checking on your parent."}
+    ]
+  }
+}
