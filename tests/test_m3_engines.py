@@ -14,6 +14,57 @@ from founderreach.profiles import load_profile
 from founderreach.research_store import ResearchStore
 
 
+def test_page_parser_resumes_after_non_jsonld_script():
+    from founderreach.m3.site import _PageParser
+    parser = _PageParser("https://example.com/")
+    parser.feed('<script src="/app.js"></script><title>Example home</title>'
+                '<main><h1>Automated scheduling</h1><p>Daily check-ins</p></main>')
+    assert parser.title == "Example home"
+    assert parser.headings == [("h1", "Automated scheduling")]
+    assert parser.paragraphs == ["Daily check-ins"]
+
+
+def test_script_src_before_title_and_h1_still_observed_and_counted_by_site_auditor():
+    profile = load_profile("scheduleflow")
+    origin_url = profile_origin(profile)
+    page_url = f"{origin_url}/"
+    html_body = (
+        "<!doctype html><html><head>"
+        '<script src="/head-bundle.js"></script>'
+        "<title>ScheduleFlow Home</title>"
+        '<meta name="description" content="Coordinate recurring bookings.">'
+        f'<link rel="canonical" href="{page_url}">'
+        "</head><body>"
+        '<script src="/body-init.js"></script>'
+        "<h1>Automated Scheduling for Teams</h1>"
+        "<p>Prevent manual handoff delays.</p>"
+        "</body></html>"
+    )
+    fetcher = FixtureSiteFetcher({
+        f"{origin_url}/robots.txt": (200, "text/plain", "User-agent: *\nAllow: /\n"),
+        f"{origin_url}/sitemap.xml": (
+            200,
+            "application/xml",
+            f"<urlset><url><loc>{page_url}</loc></url></urlset>",
+        ),
+        page_url: (200, "text/html", html_body),
+    })
+    audit = SiteAuditor(fetcher).audit(
+        profile,
+        approved_origin=origin_url,
+        approved_urls=[page_url],
+    )
+    assert len(audit.pages) == 1
+    page = audit.pages[0]
+    assert page.title == "ScheduleFlow Home"
+    assert page.headings == [("h1", "Automated Scheduling for Teams")]
+    assert len([text for tag, text in page.headings if tag == "h1"]) == 1
+    finding_codes = {finding.code for finding in audit.findings}
+    assert "metadata" not in finding_codes
+    assert "heading_structure" not in finding_codes
+
+
+
 NOW = datetime.now(timezone.utc)
 
 

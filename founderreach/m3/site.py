@@ -213,6 +213,8 @@ class _PageParser(HTMLParser):
             except (ValueError, TypeError):
                 self.jsonld_errors.append("Invalid JSON-LD syntax")
             self._capture = None
+        elif tag == "script" and self._skip:
+            self._skip -= 1
         elif tag == self._capture:
             value = " ".join(self._buffer.split())
             if value:
