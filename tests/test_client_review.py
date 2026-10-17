@@ -316,3 +316,331 @@ def test_founder_attested_text_never_appears_as_verified_demand(tmp_path, monkey
     assert "- Independent customer demand: UNKNOWN; founder attestations are not source verification." in section_2
     assert result.decision_status == "no_eligible_action"
 
+
+def live_permission(tmp_path, *, change=None, filename="live_permission.json"):
+    now = datetime.now(timezone.utc)
+    payload = {
+        "business_id": "example-business",
+        "origin": "https://example.com",
+        "approved_pages": [
+            "https://example.com/",
+            "https://example.com/robots.txt",
+            "https://example.com/sitemap.xml",
+        ],
+        "purpose": "live_site_audit",
+        "approved_by": "founder",
+        "approved_at": (now - timedelta(minutes=5)).isoformat(),
+        "expires_at": (now + timedelta(hours=2)).isoformat(),
+    }
+    if change:
+        payload.update(change)
+    path = tmp_path / filename
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    return path
+
+
+def install_mock_live_network(monkeypatch, *, responses, dns_ips=None):
+    """Mock DNS + TLS connection while exercising WebsiteFetcher._target and IP pinning."""
+    import http.client
+
+    dns_map = dns_ips or {"example.com": ["93.184.216.34"]}
+    state = {"dns_calls": [], "connect_calls": [], "http_requests": []}
+
+    def fake_getaddrinfo(host, port, type=0):
+        state["dns_calls"].append((host, port))
+        ips = dns_map(host) if callable(dns_map) else dns_map.get(host, ["93.184.216.34"])
+        if not ips:
+            raise OSError("DNS lookup failed")
+        return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", (ip, port)) for ip in ips]
+
+    def fake_create_connection(address, timeout=None, source_address=None):
+        state["connect_calls"].append((address, timeout, source_address))
+        return object()
+
+    class FakeResponse:
+        def __init__(self, status, headers, body):
+            self.status = status
+            self._headers = list(headers.items())
+            self._body = body.encode("utf-8") if isinstance(body, str) else bytes(body)
+
+        def getheaders(self):
+            return self._headers
+
+        def read(self, amt=None):
+            return self._body if amt is None else self._body[:amt]
+
+    class FakeHTTPSConnection:
+        def __init__(self, host, port=None, timeout=None):
+            self.host = host
+            self.port = port or 443
+            self.timeout = timeout
+            self._create_connection = None
+            self._response = None
+
+        def request(self, method, path, headers=None):
+            if self._create_connection is not None:
+                self._create_connection((self.host, self.port), timeout=self.timeout)
+            hdrs = dict(headers or {})
+            state["http_requests"].append((method, self.host, self.port, path, hdrs))
+            url = f"https://{self.host}{path}"
+            spec = responses(url) if callable(responses) else responses.get(url)
+            if spec is None:
+                self._response = FakeResponse(404, {"Content-Type": "text/plain"}, "")
+            elif isinstance(spec, Exception):
+                raise spec
+            else:
+                status, headers_dict, body = spec
+                self._response = FakeResponse(status, headers_dict, body)
+
+        def getresponse(self):
+            return self._response
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(socket, "getaddrinfo", fake_getaddrinfo)
+    monkeypatch.setattr(socket, "create_connection", fake_create_connection)
+    monkeypatch.setattr(http.client, "HTTPSConnection", FakeHTTPSConnection)
+    return state
+
+
+def test_sr1_live_fetch_requires_explicit_flag_live_purpose_and_confirm(tmp_path, monkeypatch, capsys):
+    forbid_network(monkeypatch)
+    offline_perm, fixtures = inputs(tmp_path)
+    live_perm = live_permission(tmp_path)
+
+    # Cannot use live_site=True with offline_fixture_audit permission or with fixtures
+    with pytest.raises(PermissionError, match="purpose"):
+        run_client_review(profile("https://example.com/"), permission_path=offline_perm, live_site=True)
+    with pytest.raises(PermissionError, match="forbids local fixture"):
+        run_client_review(profile("https://example.com/"), permission_path=live_perm,
+                          fixture_path=fixtures, live_site=True)
+    # Cannot use live_site_audit permission without live_site=True
+    with pytest.raises(PermissionError, match="purpose"):
+        run_client_review(profile("https://example.com/"), permission_path=live_perm,
+                          fixture_path=fixtures, live_site=False)
+    # TTL > 24h rejected for live_site_audit
+    long_ttl = live_permission(
+        tmp_path,
+        change={"expires_at": (datetime.now(timezone.utc) + timedelta(hours=25)).isoformat()},
+        filename="long_ttl.json",
+    )
+    with pytest.raises(ValueError, match="24 hours"):
+        run_client_review(profile("https://example.com/"), permission_path=long_ttl, live_site=True)
+
+    # CLI help explicitly states authorization is self-declared and does not prove site ownership
+    with pytest.raises(SystemExit):
+        main(["client-review", "--help"])
+    help_out = " ".join(capsys.readouterr().out.split())
+    assert "authorization is self-declared and does not prove site ownership" in help_out
+    assert "--live-site" in help_out
+
+    # Interactive CONFIRM rejection blocks execution before any network call
+    monkeypatch.setattr("builtins.input", lambda prompt: "NO")
+    with pytest.raises(PermissionError, match="confirmation"):
+        main(["client-review", "--url", "https://example.com/", "--business-id", "example-business",
+              "--name", "Example Business", "--description", "Scheduling service",
+              "--permission", str(live_perm), "--live-site"])
+
+
+def test_sr2_live_fetch_enforces_exact_origin_and_approved_inventory(tmp_path, monkeypatch):
+    # Omit sitemap.xml from approved_pages: must not be fetched over the network
+    perm_no_sitemap = live_permission(
+        tmp_path,
+        change={"approved_pages": ["https://example.com/", "https://example.com/robots.txt"]},
+        filename="no_sitemap_perm.json",
+    )
+    net = install_mock_live_network(monkeypatch, responses={
+        "https://example.com/robots.txt": (200, {"Content-Type": "text/plain"}, "User-agent: *\nAllow: /\n"),
+        "https://example.com/": (
+            200,
+            {"Content-Type": "text/html"},
+            "<html><head><title>Example</title><meta name='description' content='Desc'>"
+            "<link rel='canonical' href='https://example.com/'></head><body><h1>Heading</h1></body></html>",
+        ),
+    })
+    result = run_client_review(profile("https://example.com/"), permission_path=perm_no_sitemap, live_site=True)
+    requested_paths = [req[3] for req in net["http_requests"]]
+    assert requested_paths == ["/robots.txt", "/"]
+    assert "/sitemap.xml" not in requested_paths
+    assert "Fixture data for https://example.com/sitemap.xml: UNKNOWN; no response was supplied." in result.report
+
+    # Redirect to unapproved path or cross-origin is blocked
+    install_mock_live_network(monkeypatch, responses={
+        "https://example.com/robots.txt": (200, {"Content-Type": "text/plain"}, "User-agent: *\nAllow: /\n"),
+        "https://example.com/": (302, {"Location": "https://example.com/unapproved"}, ""),
+    })
+    redirect_res = run_client_review(profile("https://example.com/"), permission_path=perm_no_sitemap, live_site=True)
+    assert redirect_res.website_page_count == 0
+    assert "`inaccessible_page`" in redirect_res.report
+
+
+def test_sr3_live_fetch_prevents_ssrf_and_pins_verified_ip(tmp_path, monkeypatch):
+    live_perm = live_permission(tmp_path)
+    base_responses = {
+        "https://example.com/robots.txt": (200, {"Content-Type": "text/plain"}, "User-agent: *\nAllow: /\n"),
+        "https://example.com/sitemap.xml": (
+            200,
+            {"Content-Type": "application/xml"},
+            "<urlset><url><loc>https://example.com/</loc></url></urlset>",
+        ),
+        "https://example.com/": (
+            200,
+            {"Content-Type": "text/html"},
+            "<html><head><title>Example</title><link rel='canonical' href='https://example.com/'></head>"
+            "<body><h1>Example</h1></body></html>",
+        ),
+    }
+
+    # Private / loopback / link-local DNS resolutions fail closed with zero socket connections
+    for bad_ip in ("127.0.0.1", "10.0.0.1", "192.168.1.5", "169.254.169.254", "::1"):
+        net_bad = install_mock_live_network(monkeypatch, responses=base_responses,
+                                            dns_ips={"example.com": [bad_ip]})
+        res_bad = run_client_review(profile("https://example.com/"), permission_path=live_perm, live_site=True)
+        assert net_bad["connect_calls"] == []
+        assert res_bad.website_page_count == 0
+
+    # Valid global IP pins socket.create_connection to ("93.184.216.34", 443)
+    net_ok = install_mock_live_network(monkeypatch, responses=base_responses,
+                                       dns_ips={"example.com": ["93.184.216.34"]})
+    res_ok = run_client_review(profile("https://example.com/"), permission_path=live_perm, live_site=True)
+    assert res_ok.website_page_count == 1
+    assert net_ok["connect_calls"]
+    assert all(call[0] == ("93.184.216.34", 443) and call[1] == 5 for call in net_ok["connect_calls"])
+
+
+def test_sr4_live_fetch_enforces_redirect_request_time_size_and_encoding_limits(tmp_path, monkeypatch):
+    perm = live_permission(
+        tmp_path,
+        change={"approved_pages": [
+            "https://example.com/",
+            "https://example.com/step1",
+            "https://example.com/step2",
+            "https://example.com/step3",
+            "https://example.com/robots.txt",
+        ]},
+    )
+
+    # 1. Excessive redirects (> 2 hops) fail closed
+    install_mock_live_network(monkeypatch, responses={
+        "https://example.com/robots.txt": (200, {"Content-Type": "text/plain"}, "User-agent: *\nAllow: /\n"),
+        "https://example.com/": (302, {"Location": "https://example.com/step1"}, ""),
+        "https://example.com/step1": (302, {"Location": "https://example.com/step2"}, ""),
+        "https://example.com/step2": (302, {"Location": "https://example.com/step3"}, ""),
+        "https://example.com/step3": (200, {"Content-Type": "text/html"}, "<html><body><h1>Too far</h1></body></html>"),
+    })
+    res_redir = run_client_review(profile("https://example.com/"), permission_path=perm, live_site=True)
+    assert "`inaccessible_page`" in res_redir.report
+
+    # 2. Oversized body (> 512 KB) and compressed Content-Encoding fail closed
+    perm_single = live_permission(
+        tmp_path,
+        change={"approved_pages": ["https://example.com/", "https://example.com/robots.txt"]},
+        filename="single_perm.json",
+    )
+    install_mock_live_network(monkeypatch, responses={
+        "https://example.com/robots.txt": (200, {"Content-Type": "text/plain"}, "User-agent: *\nAllow: /\n"),
+        "https://example.com/": (200, {"Content-Type": "text/html"}, "x" * 512_001),
+    })
+    res_huge = run_client_review(profile("https://example.com/"), permission_path=perm_single, live_site=True)
+    assert res_huge.website_page_count == 0
+    assert "`inaccessible_page`" in res_huge.report
+
+    install_mock_live_network(monkeypatch, responses={
+        "https://example.com/robots.txt": (200, {"Content-Type": "text/plain"}, "User-agent: *\nAllow: /\n"),
+        "https://example.com/": (200, {"Content-Type": "text/html", "Content-Encoding": "gzip"}, "<html></html>"),
+    })
+    res_gzip = run_client_review(profile("https://example.com/"), permission_path=perm_single, live_site=True)
+    assert res_gzip.website_page_count == 0
+    assert "`inaccessible_page`" in res_gzip.report
+
+
+def test_sr5_live_fetch_enforces_robots_txt_before_any_page_fetch(tmp_path, monkeypatch):
+    # Permission without /robots.txt is rejected before network
+    with pytest.raises(ValueError, match="robots.txt"):
+        live_permission(
+            tmp_path,
+            change={"approved_pages": ["https://example.com/"]},
+            filename="missing_robots.json",
+        )
+        run_client_review(profile("https://example.com/"),
+                          permission_path=tmp_path / "missing_robots.json", live_site=True)
+
+    # Disallowed page in robots.txt is skipped without making an HTTP GET to the page
+    perm = live_permission(
+        tmp_path,
+        change={"approved_pages": ["https://example.com/", "https://example.com/robots.txt"]},
+        filename="robots_disallow.json",
+    )
+    net_disallow = install_mock_live_network(monkeypatch, responses={
+        "https://example.com/robots.txt": (
+            200,
+            {"Content-Type": "text/plain"},
+            "User-agent: FounderReach\nDisallow: /\n",
+        ),
+        "https://example.com/": (200, {"Content-Type": "text/html"}, "<html><body><h1>Blocked</h1></body></html>"),
+    })
+    res_disallow = run_client_review(profile("https://example.com/"), permission_path=perm, live_site=True)
+    assert [req[3] for req in net_disallow["http_requests"]] == ["/robots.txt"]
+    assert res_disallow.website_page_count == 0
+    assert "`robots_blocked`" in res_disallow.report
+
+    # Unavailable robots.txt (HTTP 500) blocks page fetching
+    net_500 = install_mock_live_network(monkeypatch, responses={
+        "https://example.com/robots.txt": (500, {"Content-Type": "text/plain"}, "error"),
+        "https://example.com/": (200, {"Content-Type": "text/html"}, "<html><body><h1>Page</h1></body></html>"),
+    })
+    res_500 = run_client_review(profile("https://example.com/"), permission_path=perm, live_site=True)
+    assert [req[3] for req in net_500["http_requests"]] == ["/robots.txt"]
+    assert res_500.website_page_count == 0
+    assert "`inaccessible_page`" in res_500.report
+
+
+def test_sr6_live_fetch_makes_zero_external_writes_and_zero_spend(tmp_path, monkeypatch):
+    live_perm = live_permission(tmp_path)
+    net = install_mock_live_network(monkeypatch, responses={
+        "https://example.com/robots.txt": (200, {"Content-Type": "text/plain"}, "User-agent: *\nAllow: /\n"),
+        "https://example.com/sitemap.xml": (
+            200,
+            {"Content-Type": "application/xml"},
+            "<urlset><url><loc>https://example.com/</loc></url></urlset>",
+        ),
+        "https://example.com/": (
+            200,
+            {"Content-Type": "text/html"},
+            "<html><head><title>Example Live</title><meta name='description' content='Live desc'>"
+            "<link rel='canonical' href='https://example.com/'></head><body><h1>Live Heading</h1></body></html>",
+        ),
+    })
+    monkeypatch.setattr("builtins.input", lambda prompt: "CONFIRM")
+    report_path = tmp_path / "live_report.md"
+    main([
+        "client-review", "--url", "https://example.com/", "--business-id", "example-business",
+        "--name", "Example Business", "--description", "Appointment scheduling service",
+        "--permission", str(live_perm), "--live-site", "--report", str(report_path),
+    ])
+    # GET only, no cookies or authorization headers sent
+    assert net["http_requests"]
+    for method, _host, _port, _path, hdrs in net["http_requests"]:
+        assert method == "GET"
+        assert "cookie" not in {k.lower() for k in hdrs}
+        assert "authorization" not in {k.lower() for k in hdrs}
+        assert hdrs.get("Accept-Encoding") == "identity"
+
+    # Zero durable sqlite/db files created; exclusive report file creation
+    assert not list(tmp_path.glob("*.sqlite*"))
+    assert not list(tmp_path.glob("*.db"))
+    report_text = report_path.read_text(encoding="utf-8")
+    assert "authorization is self-declared and does not prove site ownership" in report_text
+    assert "**website observation; live fetch**" in report_text
+    assert "Status: `no_eligible_action`" in report_text
+    assert "Primary recommendation: none yet." in report_text
+
+    with pytest.raises(FileExistsError):
+        main([
+            "client-review", "--url", "https://example.com/", "--business-id", "example-business",
+            "--name", "Example Business", "--description", "Appointment scheduling service",
+            "--permission", str(live_perm), "--live-site", "--report", str(report_path),
+        ])
+
+

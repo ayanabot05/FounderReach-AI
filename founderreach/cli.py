@@ -164,7 +164,7 @@ def cmd_serve(args):
 
 
 def cmd_client_review(args):
-    """Run a founder-confirmed, fixture-only M1–M4 client review."""
+    """Run a founder-confirmed, permission-scoped M1–M4 client review."""
     from founderreach.client_review import run_client_review
 
     identifier = args.business_id or input("Business ID (lowercase slug): ").strip()
@@ -179,13 +179,14 @@ def cmd_client_review(args):
         "description": draft.description, "audiences": draft.target_audiences,
         "pain_points": draft.pain_points,
     }, ensure_ascii=True, indent=2))
-    if input("Type CONFIRM to self-declare this profile is correct (identity is not verified): ").strip() != "CONFIRM":
+    if input("Type CONFIRM to self-declare this profile is correct (identity is not verified; authorization is self-declared and does not prove site ownership): ").strip() != "CONFIRM":
         raise PermissionError("Founder confirmation was not given")
     profile = ProductProfile.model_validate({**draft.model_dump(mode="json"), "confirmed": True})
     result = run_client_review(profile,
         permission_path=Path(args.permission) if args.permission else None,
         fixture_path=Path(args.fixtures) if args.fixtures else None,
-        attestations_path=Path(args.attestations) if args.attestations else None)
+        attestations_path=Path(args.attestations) if args.attestations else None,
+        live_site=bool(args.live_site))
     if args.report:
         with Path(args.report).open("x", encoding="utf-8") as output:
             output.write(result.report)
@@ -234,16 +235,21 @@ def main(argv=None):
     p_serve.add_argument("--port", type=int, default=8000, help="Port to run web app (default: 8000)")
     p_serve.set_defaults(func=cmd_serve)
 
-    # Founder-confirmed client review. There is deliberately no live fetch option.
-    p_review = subparsers.add_parser("client-review", help="Offline, evidence-linked client review")
-    p_review.add_argument("--url", help="Exact HTTPS page URL to review from local fixtures")
+    # Founder-confirmed client review (offline fixture default or bounded live HTTPS audit).
+    p_review = subparsers.add_parser(
+        "client-review",
+        help="Evidence-linked client review (authorization is self-declared and does not prove site ownership)",
+        description="Run a permission-scoped client review. Authorization is self-declared and does not prove site ownership.",
+    )
+    p_review.add_argument("--url", help="Exact HTTPS page URL to review (from local fixtures by default, or live with --live-site)")
     p_review.add_argument("--business-id", help="Stable lowercase business slug")
     p_review.add_argument("--name", help="Business name")
     p_review.add_argument("--description", help="Business description")
     p_review.add_argument("--audience", action="append", help="Target audience; repeat if needed")
     p_review.add_argument("--pain-point", action="append", help="Problem solved; repeat if needed")
-    p_review.add_argument("--permission", help="Local exact-origin offline permission JSON")
-    p_review.add_argument("--fixtures", help="Local bounded HTML fixture JSON")
+    p_review.add_argument("--permission", help="Local exact-origin permission JSON (authorization is self-declared and does not prove site ownership)")
+    p_review.add_argument("--fixtures", help="Local bounded HTML fixture JSON (offline mode only)")
+    p_review.add_argument("--live-site", action="store_true", help="Fetch only approved HTTPS URLs live (authorization is self-declared and does not prove site ownership)")
     p_review.add_argument("--attestations", help="Optional minimized founder attestation JSON")
     p_review.add_argument("--report", help="New local Markdown report path; never overwrites")
     p_review.set_defaults(func=cmd_client_review)
