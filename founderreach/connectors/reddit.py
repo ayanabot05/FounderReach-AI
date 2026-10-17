@@ -20,7 +20,8 @@ class RedditConnector(BaseConnector):
         self.enabled = settings.REDDIT_ENABLED
 
     def is_enabled(self) -> bool:
-        return self.enabled
+        # A local environment flag cannot grant commercial collection permission.
+        return False
 
     def search(self, product: ProductProfile, limit: int = 25) -> List[DiscussionItem]:
         if not self.is_enabled():

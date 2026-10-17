@@ -2,7 +2,9 @@ import json
 from pathlib import Path
 from evaluate_independent import evaluate
 from founderreach.ai.analyzer import opportunity_analyzer
-from founderreach.engine import AYANA_PROFILE
+from founderreach.profiles import load_profile
+
+AYANA_PROFILE = load_profile("ayana")
 from founderreach.models import DiscussionItem
 
 

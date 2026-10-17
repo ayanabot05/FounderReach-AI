@@ -1,7 +1,9 @@
 """Offline, reproducible text-intent challenge evaluation; no network or paid API."""
 import json
 from pathlib import Path
-from founderreach.engine import AYANA_PROFILE
+from founderreach.profiles import load_profile
+
+AYANA_PROFILE = load_profile("ayana")
 from founderreach.validation.intent import intent_classifier
 
 

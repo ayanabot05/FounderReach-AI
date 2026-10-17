@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Optional
 
 from founderreach.ai.cost_tracker import cost_tracker
-from founderreach.engine import AYANA_PROFILE
+from founderreach.profiles import load_profile
 from founderreach.models import DiscussionItem
 from founderreach.validation.intent import intent_classifier
 from founderreach.validation.scorer import opportunity_scorer
@@ -173,13 +173,14 @@ def build_ayana_decision(labels_path: str) -> DecisionRun:
     No connector is called: Reddit remains disabled and live source verification is
     unavailable. The scorer is diagnostic for problem fit, never outreach authority.
     """
+    profile = load_profile("ayana")
     labels = json.loads(Path(labels_path).read_text(encoding="utf-8"))
     positive = []
     rejected = []
     for row in labels:
-        has_intent, _, _ = intent_classifier.extract_direct_evidence(row["text"], AYANA_PROFILE)
+        has_intent, _, _ = intent_classifier.extract_direct_evidence(row["text"], profile)
         discussion = DiscussionItem(id=row["id"], platform=row["source"], original_url=row["url"], text=row["text"])
-        score = opportunity_scorer.score(discussion, AYANA_PROFILE)
+        score = opportunity_scorer.score(discussion, profile)
         result = {"id": row["id"], "url": row["url"], "human_label": row["label"],
                   "direct_problem_detected": has_intent, "problem_fit_score": score.problem_fit,
                   "source_live_verified_now": False, "outreach_eligible": False}

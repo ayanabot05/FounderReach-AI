@@ -1,0 +1,21 @@
+{
+  "source_key": "hackernews",
+  "version": 2,
+  "status": "review_required",
+  "terms_url": "https://www.ycombinator.com/legal/#tou",
+  "api_documentation_url": "https://hn.algolia.com/api",
+  "reviewed_at": "2026-10-17T00:00:00+05:30",
+  "review_due_at": "2026-11-17T00:00:00+05:30",
+  "allowed_uses": [],
+  "restrictions": [
+    "Commercial-use and extraction restrictions in current Y Combinator terms require a rights-holder permission decision",
+    "No written permission has been provided for FounderReach's proposed use",
+    "No live collection, community reply, outreach, or publication while review is required",
+    "HN Search API read access and rate limit do not override Y Combinator terms"
+  ],
+  "retention_days": 30,
+  "max_requests_per_hour": 0,
+  "max_queries_per_run": 0,
+  "max_pages_per_query": 0,
+  "verifier": "hn_exact_quote"
+}

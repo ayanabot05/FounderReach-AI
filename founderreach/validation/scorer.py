@@ -26,14 +26,7 @@ class OpportunityScorer:
         problem_matches = []
 
         # High-signal pain point co-occurrence patterns evaluated sentence-by-sentence
-        signal_patterns = [
-            (r'\b(elderly|aging|aged|senior)\b.*\b(parents?|mom|dad|mother|father)\b', "elderly parents care"),
-            (r'\b(parents?|mom|dad)\b.*\b(live|living|lives)\s+alone\b', "parents living alone"),
-            (r'\b(medicine|medication|pill|prescription)\b.*\b(remind|reminder|forget|taking)\b', "medicine reminders"),
-            (r'\bcheck(?:ing)?\s+in\b.*\b(daily|parents?|mom|dad|routine|morning)\b', "daily check-ins"),
-            (r'\b(fall|emergency|accident|hospital)\b.*\b(parents?|alone|house)\b', "safety & emergency anxiety"),
-            (r'\b(distance|time zone|away|miles away)\b.*\b(parents?|care|check)\b', "remote distance care")
-        ]
+        signal_patterns = [(pattern, f"profile signal {i + 1}") for i, pattern in enumerate(product.problem_patterns)]
 
         sentences = [s.strip().lower() for s in re.split(r'[.!?\n]+', text) if len(s.strip()) > 10]
         for pat, label in signal_patterns:
@@ -60,43 +53,33 @@ class OpportunityScorer:
             justification["problem_fit"] = f"Partial problem match: Mentions {problem_matches[0]}, but lacks multi-dimensional pain depth."
         else:
             problem_score = 4.0
-            justification["problem_fit"] = "Low problem match: Topic does not show genuine eldercare pain signals."
+            justification["problem_fit"] = "Low problem match: Topic does not show profile pain signals."
 
         # Penalty for negative keywords
         negative_hits = [nk for nk in product.negative_keywords if nk.lower() in text_lower]
         if negative_hits:
-            problem_score = max(0.0, problem_score - 10.0)
-            justification["problem_fit"] += f" (Penalized -10 for negative keywords: {', '.join(negative_hits)})"
+            problem_score = max(0.0, problem_score - product.negative_keyword_penalty)
+            justification["problem_fit"] += f" (Penalized -{product.negative_keyword_penalty:g} for negative keywords: {', '.join(negative_hits)})"
 
         # -------------------------------------------------------------
         # 2. Customer Fit (Max 20) — Strict Direct Evidence Only
         # -------------------------------------------------------------
         customer_score = 0.0
-        nri_terms = ["nri", "living abroad", "immigrant", "moved to", "living in the us", "living in canada", "living in uk", "abroad", "relocated", "another country", "in india while i"]
-        remote_child_terms = ["my parents live alone", "parents in india", "parents back home", "parents live in another city", "distance care", "another state", "flying back to see my parents"]
-        caregiver_terms = ["taking care of my elderly", "caregiver for my mother", "caregiver for my father", "taking care of my aging parents", "daily check-in on my parents"]
-
-        nri_match = any(t in text_lower for t in nri_terms)
-        remote_match = any(t in text_lower for t in remote_child_terms) or bool(re.search(r'\bparents?.*live.*alone\b', text_lower))
-        care_match = any(t in text_lower for t in caregiver_terms)
-
-        if (nri_match and remote_match) or (nri_match and care_match):
+        persona_hits = [term for term in product.customer_fit_signals if term.lower() in text_lower]
+        if len(persona_hits) >= 2:
             customer_score = 20.0
-            justification["customer_fit"] = "High persona alignment: Author explicitly states NRI/distance caregiving status."
-        elif remote_match or (nri_match and "parents" in text_lower):
+            justification["customer_fit"] = "High persona alignment: Multiple founder-defined customer signals."
+        elif len(persona_hits) == 1:
             customer_score = 15.0
-            justification["customer_fit"] = "Good persona alignment: Explicitly mentions remote parent care across cities/borders."
-        elif care_match or re.search(r'\b(my aging parents?|my elderly parents?)\b', text_lower):
-            customer_score = 10.0
-            justification["customer_fit"] = "Moderate persona alignment: Explicitly discusses caring for aging parents."
+            justification["customer_fit"] = "Customer signal explicitly appears in the discussion."
         else:
             customer_score = 2.0
-            justification["customer_fit"] = "Low persona alignment: No explicit evidence author is managing remote parent care."
+            justification["customer_fit"] = "Low persona alignment: No explicit founder-defined customer signal."
 
         # -------------------------------------------------------------
         # 3. Expressed Intent (Max 20)
         # -------------------------------------------------------------
-        intent_cat, intent_score, intent_reason = intent_classifier.classify_intent(text)
+        intent_cat, intent_score, intent_reason = intent_classifier.classify_intent(text, product)
         justification["expressed_intent"] = f"{intent_cat} ({intent_reason})"
 
         # -------------------------------------------------------------
@@ -136,7 +119,9 @@ class OpportunityScorer:
         # 5. Evidence Quality (Max 15)
         # -------------------------------------------------------------
         char_count = len(text.strip())
-        has_specifics = bool(re.search(r'\b(whatsapp|phone|call|hospital|doctor|daily|morning|night|pill|remind)\b', text_lower))
+        # Specificity comes from the selected business, never from AYANA vocabulary.
+        profile_terms = product.keywords + product.customer_fit_signals
+        has_specifics = any(term.lower() in text_lower for term in profile_terms if len(term.strip()) >= 5)
 
         if char_count >= 150 and has_specifics:
             evidence_score = 15.0

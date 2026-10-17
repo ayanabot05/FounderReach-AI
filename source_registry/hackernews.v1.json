@@ -1,0 +1,21 @@
+{
+  "source_key": "hackernews",
+  "version": 1,
+  "status": "approved",
+  "terms_url": "https://news.ycombinator.com/newsguidelines.html",
+  "api_documentation_url": "https://hn.algolia.com/api",
+  "reviewed_at": "2026-10-17T00:00:00+05:30",
+  "review_due_at": "2026-11-17T00:00:00+05:30",
+  "allowed_uses": ["research", "owned_content_planning"],
+  "restrictions": [
+    "Read-only research through documented HN Algolia API",
+    "No automated or AI-generated HN posts or comments",
+    "No community reply permission inferred from public availability",
+    "Recheck source terms before production or commercial expansion"
+  ],
+  "retention_days": 365,
+  "max_requests_per_hour": 60,
+  "max_queries_per_run": 5,
+  "max_pages_per_query": 3,
+  "verifier": "hn_exact_quote"
+}

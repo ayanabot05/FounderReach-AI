@@ -20,11 +20,25 @@ FounderReach AI is an evidence-verified customer opportunity engine built for fo
 - **Cloud and Local Storage:** Best-effort Supabase writes and local SQLite writes; synchronization and live cloud permissions require verification.
 - **Local Cost Ledger:** Applies estimated budget checks to the optional app-managed path. External account spending must be checked separately.
 - **Compliance First:** Operates on public Hacker News APIs. Reddit connector is explicitly disabled by policy until commercial-use authorization is obtained.
+
+## M2 local evidence intelligence
+
+`founderreach.evidence.EvidenceObservation` is the normalized, business-scoped input for later channel engines. It keeps provenance, relevance, freshness, verification, permission and human review as separate fields. HN discovery uses bounded date windows and records page/query outcomes. The local `ResearchStore` stores observations, query runs and append-only review events; it applies source retention limits on use. `source_registry/hackernews.v1.json` permits read-only research and owned content planning only. A successful empty query differs from source failure, and neither grants outreach or publication. M2 does not enable Reddit, scheduled collection, production storage, UI workflows or external actions.
+
+## M3 local SEO, AEO and GEO analysis
+
+`founderreach.m3.pipeline.analyze_business` accepts a founder-confirmed profile, M2 local research store, an explicit approved HTTPS origin and URL inventory, and a fetcher. `FixtureSiteFetcher` is network-free for tests. `ApprovedSiteFetcher` uses the existing DNS-checked, pinned connection primitives and enforces same-origin redirects, response, request and time budgets. The SEO audit, AEO question analysis, GEO readiness/citation analysis and `ContentOpportunity` output remain local and review-only. No page, post, contact or publication action is executed. Run `python -m pytest -q --basetemp .pytest-m3-temp` for the full regression suite. See `reports/CTO_M3_COMPLETION_2026-10-17.md` for measured fixture results and limitations.
 - **CLI & Web Interface:** Full CLI suite + responsive single-page FastAPI dashboard with 1-click response copying and founder feedback tracking.
 
 ---
 
 ## Quick Setup
+
+### Local multi-business Phase 1
+
+**M1 local status (17 October 2026):** The discovery engine now requires an explicit confirmed profile. Stable business/source IDs and an explicit tenant-scoped `ResearchStore` preserve research locally, including evidence blocked from outreach. `persist=True` requires that store; it never invokes the legacy SQLite/Supabase opportunity writer. A timely verified customer problem may be classified as an actionable demand signal, but that classification does not authorize a reply or generate a draft. The legacy web data API and the experimental self-service approval/outcome path fail closed pending tenant authentication and signed-gate integration. New authorized cash spend is ₹0; positive-cost usage is rejected. See `reports/M1_TENANT_BOUNDARY_DESIGN_2026-10-17.md`. No production schema or deployment has changed.
+
+Founder-confirmed profiles are in `profiles/`. Run `python -m founderreach.cli find --profile ayana --research` or substitute `scheduleflow` to use the unrelated scheduling SaaS sample. The selected profile supplies HN search terms, scoring signals, intent rules, thresholds and channel restrictions. A draft with `confirmed: false` is rejected by the engine. Results default to non-persistent local evaluation while the existing database lacks per-founder isolation. `--research` shows verified research even when no reply is permitted. These are advisory results; outreach, publishing and paid actions remain behind explicit approval. See `reports/CTO_PHASE1_EXECUTION_2026-10-17.md` for the audit and production blockers.
 
 ### 1. Requirements
 - Python 3.10+ (Tested on Python 3.13.3)
@@ -146,6 +160,10 @@ founderreach.ai/
 ---
 
 ## Deliverables & Documentation Index
+
+### M4 local acquisition decision engine
+
+`founderreach/m4/` builds evidence-linked acquisition candidates from confirmed profiles, M2 observations, M3 analysis, confirmed owned-channel access, and observed placement records. Eligibility checks precede an eight-dimension ordinal ranking. Results are local review artifacts; the optional gate bridge uses the existing signed M1 approval lifecycle and requires fresh revalidation. Run `python -m pytest -q` for the local regression suite. See [the M4 CTO completion report](reports/CTO_M4_COMPLETION_2026-10-17.md) for scope, demonstration, security limits, and M5 proposal.
 
 - [Competitor Research Report](reports/COMPETITOR_RESEARCH.md)
 - [AYANA Verified Opportunities](reports/AYANA_VERIFIED_OPPORTUNITIES.md)

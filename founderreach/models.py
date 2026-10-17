@@ -1,20 +1,65 @@
 from datetime import datetime, timezone
 from typing import List, Optional, Dict, Any, Literal
-from pydantic import BaseModel, Field, HttpUrl, model_validator
+from pydantic import BaseModel, Field, HttpUrl, model_validator, field_validator
 
 def utc_now():
     return datetime.now(timezone.utc)
 
 class ProductProfile(BaseModel):
-    name: str = Field(..., description="Product name (e.g. AYANA)")
-    website: str = Field(..., description="Product website URL")
-    description: str = Field(..., description="Clear explanation of the product and what it does")
+    identifier: str = Field(default="local")
+    version: int = Field(default=1, ge=1)
+    confirmed: bool = Field(default=False)
+    name: str = Field(..., min_length=1, description="Business name")
+    website: HttpUrl = Field(..., description="Business website URL")
+    description: str = Field(..., min_length=1, description="Clear explanation of the product")
     target_audiences: List[str] = Field(default_factory=list, description="Target customer personas (e.g. NRIs with parents in India)")
     target_markets: List[str] = Field(default_factory=list, description="Target countries or regions (e.g. India, USA, Global)")
     keywords: List[str] = Field(default_factory=list, description="Core search keywords")
     pain_points: List[str] = Field(default_factory=list, description="Specific problems the product solves")
     negative_keywords: List[str] = Field(default_factory=list, description="Irrelevant keywords to filter out")
+    customer_fit_signals: List[str] = Field(default_factory=list)
+    disqualifying_patterns: List[str] = Field(default_factory=list)
+    problem_patterns: List[str] = Field(default_factory=list)
+    direct_problem_patterns: List[str] = Field(default_factory=list)
+    supported_languages: List[str] = Field(default_factory=list)
+    acquisition_objectives: List[str] = Field(default_factory=list)
+    allowed_acquisition_channels: List[str] = Field(default_factory=lambda: ["demand_evidence", "owned_channel"])
+    competitor_names: List[str] = Field(default_factory=list)
+    budget_inr: Optional[float] = Field(default=None, ge=0)
+    minimum_score: int = Field(default=75, ge=0, le=100)
+    minimum_confidence: float = Field(default=0.7, ge=0, le=1)
+    negative_keyword_penalty: float = Field(default=10, ge=0, le=30)
+    reply_max_age_days: int = Field(default=90, ge=0)
+    partner_recheck_days: int = Field(default=30, ge=0)
     max_actionable_age_days: int = Field(default=90, description="Strict freshness gate: maximum age in days for actionable outreach")
+
+    @field_validator("problem_patterns", "direct_problem_patterns", "disqualifying_patterns")
+    @classmethod
+    def valid_patterns(cls, patterns):
+        import re
+        for pattern in patterns:
+            try:
+                re.compile(pattern)
+            except re.error as exc:
+                raise ValueError(f"Invalid profile pattern: {exc}") from exc
+        return patterns
+
+    @field_validator("allowed_acquisition_channels")
+    @classmethod
+    def valid_channels(cls, channels):
+        allowed = {"demand_evidence", "owned_channel", "community_reply", "partner_media"}
+        if any(channel not in allowed for channel in channels):
+            raise ValueError("Unknown acquisition channel")
+        return channels
+
+    @model_validator(mode="after")
+    def confirmed_profile(self):
+        if self.confirmed and (not self.identifier.strip() or not self.name.strip()):
+            raise ValueError("Confirmed profiles require an identifier and business name")
+        if self.confirmed:
+            from founderreach.identity import business_id
+            business_id(self.identifier)
+        return self
 
 class DiscussionItem(BaseModel):
     id: str = Field(..., description="Platform-unique identifier")
@@ -42,9 +87,15 @@ class SourceVerification(BaseModel):
     evidence_excerpt: str = Field(..., description="Exact verifiable excerpt found in the live content")
     checked_at: datetime = Field(default_factory=utc_now, description="Timestamp of live verification check")
     verification_notes: Optional[str] = Field(None, description="Details or warnings from the verification attempt")
+    status: Literal["verified", "unverified", "quote_mismatch", "not_found", "rate_limited", "network_error", "unsupported_source"] = "unverified"
+    method: Optional[str] = None
+    expires_at: Optional[datetime] = None
 
 class CustomerOpportunity(BaseModel):
-    id: str = Field(..., description="Unique opportunity ID (hash of source ID and product)")
+    id: str = Field(..., description="Stable hash of business and native source identity")
+    business_id: Optional[str] = None
+    source_id: Optional[str] = None
+    profile_version: int = Field(default=1, ge=1)
     product_name: str = Field(..., description="Associated product")
     platform: str = Field(..., description="Hacker News, Reddit, etc.")
     original_url: str = Field(..., description="Verified original URL")
@@ -54,7 +105,7 @@ class CustomerOpportunity(BaseModel):
     # Validation Machine Enhancements (CEO Directive)
     classification: Literal["ACTIONABLE_OPPORTUNITY", "RESEARCH_INSIGHT", "IRRELEVANT"] = Field(
         default="RESEARCH_INSIGHT",
-        description="Explicit separation of actionable outreach vs research insight vs irrelevant"
+        description="Timely verified demand signal; never grants outreach permission"
     )
     source_status: Literal["SOURCE_VERIFIED", "SOURCE_UNVERIFIED"] = Field(
         default="SOURCE_UNVERIFIED",
@@ -72,12 +123,13 @@ class CustomerOpportunity(BaseModel):
         default_factory=list,
         description="Explicit reasons if not classified as an actionable opportunity"
     )
+    signal_routes: List[str] = Field(default_factory=list)
     
     customer_problem: str = Field(..., description="Succinct synthesis of the customer's stated problem")
     why_relevant: str = Field(..., description="Explicit explanation of why the product is relevant to this discussion")
     evidence_excerpt: str = Field(..., description="Exact quote verified from original discussion")
     score: ScoreBreakdown = Field(..., description="Transparent 100-point score")
-    suggested_response: str = Field(default="", description="Draft only for verified actionable records; human approval required")
+    suggested_response: str = Field(default="", description="Discovery never releases a community reply draft")
     verification: SourceVerification = Field(..., description="Source verification status and audit trail")
     feedback: Optional[str] = Field(None, description="User feedback: 'relevant', 'irrelevant', or None")
     feedback_notes: Optional[str] = Field(None, description="Founder notes on opportunity quality")
@@ -85,9 +137,5 @@ class CustomerOpportunity(BaseModel):
 
     @model_validator(mode="after")
     def withhold_unapproved_drafts(self):
-        if (self.classification != "ACTIONABLE_OPPORTUNITY" or
-            self.source_status != "SOURCE_VERIFIED" or
-            self.intent_status != "CUSTOMER_INTENT_VERIFIED" or
-            not self.verification.verified):
-            self.suggested_response = ""
+        self.suggested_response = ""
         return self

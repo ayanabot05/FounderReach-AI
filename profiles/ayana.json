@@ -1,0 +1,100 @@
+{
+  "identifier": "ayana",
+  "confirmed": true,
+  "name": "AYANA",
+  "website": "https://www.ayanabott.com/",
+  "description": "AYANA helps families living away from parents with WhatsApp check-ins, medicine reminders and return-home safety checks in English, Telugu and Hindi.",
+  "target_audiences": [
+    "NRIs with parents living in India",
+    "Adult children living in another city",
+    "Families concerned about regular parent check-ins"
+  ],
+  "target_markets": [
+    "India",
+    "USA",
+    "UK",
+    "Canada",
+    "Global NRI corridors"
+  ],
+  "keywords": [
+    "elderly parents living alone",
+    "aging parents check in",
+    "parents in India care",
+    "medicine reminder for parents",
+    "staying connected with elderly parents",
+    "nri parents alone in india"
+  ],
+  "pain_points": [
+    "worrying about elderly parents living alone",
+    "ensuring aging parents take daily medication on time",
+    "remote parent check-ins across time zones and distance",
+    "fear of parent falling or having emergency while living alone",
+    "parents resisting complicated new apps or wearables"
+  ],
+  "negative_keywords": [
+    "pet care",
+    "toddler",
+    "kindergarten",
+    "crypto",
+    "spam",
+    "bulk sms marketing"
+  ],
+  "customer_fit_signals": [
+    "nri",
+    "living abroad",
+    "immigrant",
+    "parents in india",
+    "my parents live alone",
+    "parents back home",
+    "parents live in another city",
+    "caregiver for my mother",
+    "caregiver for my father",
+    "my aging parents",
+    "my elderly parents"
+  ],
+  "problem_patterns": [
+    "\\b(elderly|aging|aged|senior)\\b.*\\b(parents?|mom|dad|mother|father)\\b",
+    "\\b(parents?|mom|dad)\\b.*\\b(live|living|lives)\\s+alone\\b",
+    "\\b(medicine|medication|pill|prescription)\\b.*\\b(remind|reminder|forget|taking)\\b",
+    "\\bcheck(?:ing)?\\s+in\\b.*\\b(daily|parents?|mom|dad|routine|morning)\\b",
+    "\\b(fall|emergency|accident|hospital)\\b.*\\b(parents?|alone|house)\\b",
+    "\\b(distance|time zone|away|miles away)\\b.*\\b(parents?|care|check)\\b",
+    "\\bmedicine\\b.*\\breminders?\\b"
+  ],
+  "direct_problem_patterns": [
+    "\\bmy (?:mom|mother|dad|father|parents?)\\b.*\\b(?:forgot|forgets|forgetting|forgotten)\\b.*\\b(?:medicine|medication|pills?|dose)\\b",
+    "\\bworried (?:that|about)\\b.*\\b(?:mom|mother|dad|father|parents?)\\b.*\\b(?:fall|alone|emergency|woke up|not answering)\\b",
+    "\\bhard (?:to|for me to)\\b.*\\b(?:call|check in|reach)\\b.*\\b(?:every day|daily|morning)\\b",
+    "\\banxious\\b.*\\b(?:living alone|living away|not answering the phone)\\b",
+    "\\bemergency\\b.*\\b(?:mom|dad|parents?)\\b.*\\b(?:alone|house|hospital)\\b",
+    "\\bparents? (?:refuse|refuses|hates?|struggle with)\\b.*\\b(?:apps?|smartphones?|tech|complicated)\\b",
+    "\\b(?:i am|i.m) really struggling to manage my parent.*\\bmedication",
+    "\\bi.?m really struggling to manage my parent.*\\bmedications?\\b"
+  ],
+  "disqualifying_patterns": [
+    "\\bboomer parents don't help\\b",
+    "\\bmeta api\\b",
+    "\\bwebhook\\b",
+    "\\bsql query\\b",
+    "\\bmacroeconomic\\b",
+    "\\bcopyright\\b",
+    "\\bip law\\b"
+  ],
+  "supported_languages": [
+    "English",
+    "Telugu",
+    "Hindi"
+  ],
+  "acquisition_objectives": [
+    "qualified signups"
+  ],
+  "allowed_acquisition_channels": [
+    "demand_evidence",
+    "owned_channel",
+    "partner_media"
+  ],
+  "minimum_score": 75,
+  "minimum_confidence": 0.7,
+  "reply_max_age_days": 90,
+  "max_actionable_age_days": 90
+}

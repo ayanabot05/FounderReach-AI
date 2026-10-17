@@ -1,7 +1,9 @@
 import pytest
 from founderreach.connectors.hackernews import HackerNewsConnector
 from founderreach.connectors.reddit import RedditConnector
-from founderreach.engine import AYANA_PROFILE
+from founderreach.profiles import load_profile
+
+AYANA_PROFILE = load_profile("ayana")
 
 def test_reddit_connector_disabled_by_policy():
     reddit = RedditConnector()

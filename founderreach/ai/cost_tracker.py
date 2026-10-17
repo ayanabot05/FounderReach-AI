@@ -27,9 +27,10 @@ class CostTracker:
             "spent_usd": round(actual_usd, 4),
             "target_budget_inr": self.budget_target_inr,
             "ceiling_budget_inr": self.budget_ceiling_inr,
+            "authorized_new_spend_inr": settings.AUTHORIZED_NEW_SPEND_INR,
             "remaining_target_inr": max(0.0, round(self.budget_target_inr - actual_inr, 2)),
             "remaining_ceiling_inr": max(0.0, round(self.budget_ceiling_inr - actual_inr, 2)),
-            "requires_ceo_approval": actual_inr >= self.budget_target_inr,
+            "requires_ceo_approval": settings.AUTHORIZED_NEW_SPEND_INR == 0 or actual_inr >= self.budget_target_inr,
             "is_within_ceiling": actual_inr < self.budget_ceiling_inr
         }
 
@@ -38,6 +39,10 @@ class CostTracker:
         Guarantees we never exceed budget ceilings.
         Raises BudgetExceededError if limit is breached.
         """
+        if estimated_cost_usd < 0:
+            raise ValueError("Estimated spend cannot be negative")
+        if estimated_cost_usd > 0:
+            raise BudgetExceededError("CEO approval required: authorized new spend is ₹0")
         estimated_inr = estimated_cost_usd * USD_TO_INR_RATE
         summary = self.get_spending_summary()
         current_inr = summary["spent_inr"]
@@ -60,6 +65,7 @@ class CostTracker:
     def record_usage(self, service: str, operation: str, tokens_in: int = 0, tokens_out: int = 0,
                      cost_usd: float = 0.0, model: str = "none", cached: bool = False, notes: str = ""):
         """Records an expense item into the SQLite ledger."""
+        self.check_can_spend(cost_usd)
         cost_inr = cost_usd * USD_TO_INR_RATE
         db.record_cost(
             service=service,

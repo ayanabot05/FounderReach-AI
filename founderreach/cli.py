@@ -23,7 +23,8 @@ from rich import box
 
 from founderreach.config import settings
 from founderreach.models import ProductProfile
-from founderreach.engine import engine, AYANA_PROFILE
+from founderreach.engine import engine
+from founderreach.profiles import load_profile
 from founderreach.db import db
 from founderreach.ai.cost_tracker import cost_tracker
 from founderreach.validation.verifier import source_verifier
@@ -34,23 +35,25 @@ console = Console(force_terminal=True, legacy_windows=False)
 
 def cmd_find(args):
     """Find verified customer opportunities."""
+    profile = load_profile(args.profile)
     console.print(f"\n[bold cyan]🔍 FounderReach AI Discovery Engine[/bold cyan]")
-    console.print(f"Product: [green]{AYANA_PROFILE.name}[/green] ({AYANA_PROFILE.website})")
-    console.print(f"Minimum Score Threshold: [yellow]{args.threshold}[/yellow] | Limit: [yellow]{args.limit}[/yellow]")
+    console.print(f"Product: [green]{profile.name}[/green] ({profile.website})")
+    console.print(f"Minimum Score Threshold: [yellow]{args.threshold if args.threshold is not None else profile.minimum_score}[/yellow] | Limit: [yellow]{args.limit}[/yellow]")
     console.print(f"Active Connectors: Hacker News (Public API) | Reddit (Disabled by policy)\n")
 
     with console.status("[bold green]Discovering, deduplicating, scoring and verifying opportunities...[/bold green]"):
         opps = engine.find_opportunities(
-            product=AYANA_PROFILE,
+            product=profile,
             min_score=args.threshold,
             limit=args.limit,
             verify_live=not args.no_verify,
-            actionable_only=not args.research
+            actionable_only=not args.research,
+            persist=False
         )
 
     if not opps:
         if not args.research:
-            console.print("[yellow]Honest Result: 0 opportunities survived strict actionable customer acquisition filters.[/yellow]")
+            console.print("[yellow]Honest Result: 0 verified, timely demand signals met the profile threshold.[/yellow]")
             console.print("[dim]Tip: Run with `--research` to inspect historical and observational research insights.[/dim]")
         else:
             console.print("[yellow]Honest Result: No opportunities or research insights met the criteria.[/yellow]")
@@ -61,7 +64,7 @@ def cmd_find(args):
         print(json.dumps(data, indent=2))
         return
 
-    table = Table(title=f"Verified Discussions for {AYANA_PROFILE.name}", box=box.ROUNDED)
+    table = Table(title=f"Verified Discussions for {profile.name}", box=box.ROUNDED)
     table.add_column("Type", style="bold", width=12)
     table.add_column("Score", style="bold green", width=7)
     table.add_column("Date", style="cyan", width=12)
@@ -70,7 +73,7 @@ def cmd_find(args):
     table.add_column("Original URL", style="blue underline", width=36)
 
     for o in opps:
-        type_badge = "[bold green]ACTIONABLE[/bold green]" if o.classification == "ACTIONABLE_OPPORTUNITY" else "[yellow]RESEARCH[/yellow]"
+        type_badge = "[bold green]TIMELY DEMAND[/bold green]" if o.classification == "ACTIONABLE_OPPORTUNITY" else "[yellow]RESEARCH[/yellow]"
         summary_text = f"[bold]{o.customer_problem}[/bold]\n\n[italic dim]\"{o.evidence_excerpt[:130]}...\"[/italic dim]"
         table.add_row(
             type_badge,
@@ -116,7 +119,7 @@ def cmd_detail(args):
         f"  - Recency: {match.score.recency}/15\n"
         f"  - Evidence Quality: {match.score.evidence_quality}/15\n\n"
         f"[bold cyan]Customer Problem:[/bold cyan]\n{match.customer_problem}\n\n"
-        f"[bold cyan]Why AYANA is Relevant:[/bold cyan]\n{match.why_relevant}\n\n"
+        f"[bold cyan]Why Relevant:[/bold cyan]\n{match.why_relevant}\n\n"
         f"[bold cyan]Verified Evidence Excerpt:[/bold cyan]\n[italic]\"{match.evidence_excerpt}\"[/italic]\n\n"
         f"[bold yellow]Suggested Grounded Response (No fabricated claims):[/bold yellow]\n\n"
         f"{match.suggested_response}",
@@ -144,6 +147,7 @@ def cmd_budget(args):
     table.add_row("Actual External Spend (USD)", f"${summary['spent_usd']:.4f}")
     table.add_row("Target Budget Ceiling (INR)", f"INR {summary['target_budget_inr']:.2f}")
     table.add_row("Absolute Spending Ceiling (INR)", f"INR {summary['ceiling_budget_inr']:.2f}")
+    table.add_row("Authorized New Spend (INR)", f"INR {summary['authorized_new_spend_inr']:.2f}")
     table.add_row("Remaining to Target (INR)", f"INR {summary['remaining_target_inr']:.2f}")
     table.add_row("Requires CEO Approval", "YES" if summary['requires_ceo_approval'] else "NO")
     table.add_row("Ceiling Status", "[green]HEALTHY / ZERO SPEND[/green]" if summary['is_within_ceiling'] else "[red]EXCEEDED[/red]")
@@ -151,12 +155,8 @@ def cmd_budget(args):
     console.print(table)
 
 def cmd_feedback(args):
-    """Record human feedback on an opportunity for precision metrics."""
-    success = db.update_feedback(args.id, args.status.lower(), args.notes)
-    if success:
-        console.print(f"[green]Feedback recorded for {args.id}: {args.status}[/green]")
-    else:
-        console.print(f"[red]Could not find opportunity ID {args.id}[/red]")
+    """Legacy feedback writes remain disabled until tenant authorization."""
+    console.print("[red]Feedback writes are disabled until tenant authorization is integrated.[/red]")
 
 def cmd_serve(args):
     """Launch lightweight FastAPI server."""
@@ -170,7 +170,8 @@ def main():
 
     # find
     p_find = subparsers.add_parser("find", help="Find customer opportunities")
-    p_find.add_argument("--threshold", type=int, default=75, help="Minimum 100-pt score threshold (default: 75)")
+    p_find.add_argument("--profile", default="ayana", help="Founder-confirmed profile identifier")
+    p_find.add_argument("--threshold", type=int, default=None, help="Minimum 100-pt score threshold (default: profile setting)")
     p_find.add_argument("--limit", type=int, default=10, help="Maximum opportunities to return (default: 10)")
     p_find.add_argument("--format", choices=["table", "json", "markdown"], default="table", help="Output format")
     p_find.add_argument("--no-verify", action="store_true", help="Bypass live HTTP verification (not recommended)")

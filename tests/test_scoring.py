@@ -3,23 +3,25 @@ from datetime import datetime, timezone, timedelta
 from founderreach.models import DiscussionItem, ProductProfile
 from founderreach.validation.scorer import opportunity_scorer
 from founderreach.validation.intent import intent_classifier
-from founderreach.engine import AYANA_PROFILE
+from founderreach.profiles import load_profile
+
+AYANA_PROFILE = load_profile("ayana")
 
 def test_intent_active_solution_seeker():
     text = "How do you guys check in on your elderly parents living alone in India? Looking for an app or service recommendations."
-    category, score, reason = intent_classifier.classify(text)
+    category, score, reason = intent_classifier.classify(text, AYANA_PROFILE)
     assert category == "Active Solution Seeker"
     assert score == 20.0
 
 def test_intent_personal_experiencer():
     text = "My mother lives alone in Hyderabad and forgotten to take her medicine last week. It was terrifying."
-    category, score, reason = intent_classifier.classify(text)
+    category, score, reason = intent_classifier.classify(text, AYANA_PROFILE)
     assert "Experiencer" in category
     assert score >= 15.0
 
 def test_intent_offtopic_tech():
     text = "The meta api latency issues are causing webhook dropped packets in our javascript framework."
-    category, score, reason = intent_classifier.classify(text)
+    category, score, reason = intent_classifier.classify(text, AYANA_PROFILE)
     assert category == "Off-Topic / Technical Discussion"
     assert score <= 5.0
 

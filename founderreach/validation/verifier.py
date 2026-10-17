@@ -2,12 +2,9 @@ import urllib.request
 import urllib.parse
 import html
 import re
-import hashlib
 import logging
-from datetime import datetime
-from typing import Tuple, Optional
+from datetime import datetime, timedelta, timezone
 from founderreach.models import SourceVerification
-from founderreach.db import db
 
 logger = logging.getLogger(__name__)
 
@@ -34,21 +31,12 @@ class SourceVerifier:
         2. Verifies that the excerpt actually exists in the live source HTML/body.
         3. Returns SourceVerification audit model.
         """
-        # Check verification cache first
-        host = urllib.parse.urlparse(url).hostname
-        if host != "news.ycombinator.com" or not excerpt.strip():
+        parsed = urllib.parse.urlparse(url)
+        host = parsed.hostname
+        if parsed.scheme != "https" or host != "news.ycombinator.com" or parsed.path != "/item" or not excerpt.strip():
             return SourceVerification(verified=False, http_status=None, verified_url=url,
-                evidence_excerpt=excerpt, verification_notes="Unsupported source or empty excerpt")
-        cache_key = f"verify:v2:{url}:{hashlib.sha256(excerpt.encode()).hexdigest()}"
-        cached = db.get_cache(cache_key)
-        if cached:
-            try:
-                import json
-                data = json.loads(cached)
-                data["checked_at"] = datetime.fromisoformat(data["checked_at"])
-                return SourceVerification(**data)
-            except Exception:
-                pass
+                evidence_excerpt=excerpt, verification_notes="Unsupported source or empty excerpt",
+                status="unsupported_source")
 
         req = urllib.request.Request(
             url,
@@ -61,13 +49,20 @@ class SourceVerifier:
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                 status_code = resp.status
+                final_url = resp.geturl() if hasattr(resp, "geturl") else url
+                if isinstance(final_url, str) and (urllib.parse.urlparse(final_url).hostname != host
+                                                   or urllib.parse.urlparse(final_url).scheme != "https"):
+                    return SourceVerification(verified=False, http_status=status_code, verified_url=url,
+                        evidence_excerpt=excerpt, verification_notes="Redirected outside approved source",
+                        status="unsupported_source")
                 if status_code != 200:
                     res = SourceVerification(
                         verified=False,
                         http_status=status_code,
                         verified_url=url,
                         evidence_excerpt=excerpt,
-                        verification_notes=f"HTTP status {status_code} is not 200 OK"
+                        verification_notes=f"HTTP status {status_code} is not 200 OK",
+                        status="rate_limited" if status_code == 429 else "not_found" if status_code == 404 else "unverified"
                     )
                     return res
 
@@ -85,17 +80,22 @@ class SourceVerifier:
                         http_status=status_code,
                         verified_url=url,
                         evidence_excerpt=excerpt[:250],
-                        verification_notes="Live URL reached and excerpt verified in page content."
+                        verification_notes="Live URL reached and excerpt verified in page content.",
+                        status="verified", method="hn_exact_quote",
+                        expires_at=datetime.now(timezone.utc) + timedelta(hours=24)
                     )
                 else:
                     res = SourceVerification(verified=False, http_status=status_code,
                         verified_url=url, evidence_excerpt=excerpt,
-                        verification_notes="Live URL reached, but full quoted excerpt was absent.")
+                        verification_notes="Live URL reached, but full quoted excerpt was absent.",
+                        status="quote_mismatch", method="hn_exact_quote")
 
-                # Cache result
-                db.set_cache(cache_key, res.model_dump_json())
                 return res
 
+        except urllib.error.HTTPError as e:
+            return SourceVerification(verified=False, http_status=e.code, verified_url=url,
+                evidence_excerpt=excerpt, status="rate_limited" if e.code == 429 else "not_found" if e.code == 404 else "unverified",
+                method="hn_exact_quote", verification_notes=f"HTTP {e.code}")
         except Exception as e:
             logger.warning(f"Verification failed for {url}: {e}")
             res = SourceVerification(
@@ -103,7 +103,8 @@ class SourceVerifier:
                 http_status=None,
                 verified_url=url,
                 evidence_excerpt=excerpt,
-                verification_notes=f"Network error during verification: {str(e)}"
+                verification_notes=f"Network error during verification: {type(e).__name__}",
+                status="network_error", method="hn_exact_quote"
             )
             return res
 

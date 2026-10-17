@@ -6,7 +6,8 @@ from pydantic import BaseModel
 
 from founderreach.config import settings
 from founderreach.models import CustomerOpportunity, ProductProfile
-from founderreach.engine import engine, AYANA_PROFILE
+from founderreach.engine import engine
+from founderreach.profiles import load_profile
 from founderreach.db import db
 from founderreach.ai.cost_tracker import cost_tracker
 
@@ -25,33 +26,42 @@ class FeedbackRequest(BaseModel):
 
 @app.get("/api/budget")
 def get_budget():
-    return cost_tracker.get_spending_summary()
+    raise HTTPException(status_code=503, detail="Legacy API disabled until tenant authorization is integrated")
 
 @app.get("/api/opportunities")
 def get_opportunities(
-    product: str = "AYANA",
-    min_score: int = Query(75, ge=0, le=100),
+    product: str = "ayana",
+    min_score: Optional[int] = Query(None, ge=0, le=100),
     limit: int = Query(10, ge=1, le=50),
-    refresh: bool = False
+    refresh: bool = False,
+    include_research: bool = False
 ):
+    raise HTTPException(status_code=503, detail="Legacy API disabled until tenant authorization is integrated")
     try:
+        profile = load_profile(product.lower())
+        min_score = profile.minimum_score if min_score is None else min_score
         if refresh:
-            opps = engine.find_opportunities(product=AYANA_PROFILE, min_score=min_score, limit=limit)
+            opps = engine.find_opportunities(product=profile, min_score=min_score, limit=limit, persist=False,
+                                             actionable_only=not include_research)
         else:
-            opps = db.get_opportunities(product_name=product, min_score=float(min_score))[:limit]
+            opps = db.get_opportunities(product_name=profile.name, min_score=float(min_score))[:limit]
             if not opps:
-                opps = engine.find_opportunities(product=AYANA_PROFILE, min_score=min_score, limit=limit)
+                opps = engine.find_opportunities(product=profile, min_score=min_score, limit=limit, persist=False,
+                                                 actionable_only=not include_research)
         # Database rows may be historical or from the pre-audit schema.
         from datetime import datetime
         safe = []
         for o in opps:
             try:
                 age = (datetime.utcnow().date() - datetime.fromisoformat(o.discussion_date).date()).days if o.discussion_date else None
-                fresh = age is not None and 0 <= age <= AYANA_PROFILE.max_actionable_age_days
+                fresh = age is not None and 0 <= age <= profile.reply_max_age_days
             except ValueError:
                 fresh = False
-            if (o.classification == "ACTIONABLE_OPPORTUNITY" and o.source_status == "SOURCE_VERIFIED"
-                and o.verification.verified and o.intent_status == "CUSTOMER_INTENT_VERIFIED" and fresh):
+            actionable = (o.classification == "ACTIONABLE_OPPORTUNITY" and o.source_status == "SOURCE_VERIFIED"
+                          and o.verification.verified and o.intent_status == "CUSTOMER_INTENT_VERIFIED" and fresh)
+            research = (include_research and o.classification == "RESEARCH_INSIGHT" and
+                        o.source_status == "SOURCE_VERIFIED" and o.verification.verified)
+            if actionable or research:
                 safe.append(o.model_dump(mode="json"))
         return safe[:limit]
     except Exception as e:
@@ -60,6 +70,7 @@ def get_opportunities(
 
 @app.post("/api/feedback")
 def submit_feedback(req: FeedbackRequest):
+    raise HTTPException(status_code=503, detail="Legacy API disabled until tenant authorization is integrated")
     if req.feedback not in ("relevant", "irrelevant"):
         raise HTTPException(status_code=400, detail="Feedback must be 'relevant' or 'irrelevant'")
     success = db.update_feedback(req.id, req.feedback, req.notes)
@@ -297,7 +308,8 @@ def index():
       <div class="control-group">
         <label>Product Focus</label>
         <select id="product-select">
-          <option value="AYANA" selected>AYANA (Elderly Parent Care via WhatsApp)</option>
+          <option value="ayana" data-threshold="75" selected>AYANA (Parent Care)</option>
+          <option value="scheduleflow" data-threshold="70">ScheduleFlow (Sample Scheduling SaaS)</option>
         </select>
       </div>
       <div class="control-group">
@@ -332,7 +344,8 @@ def index():
       container.innerHTML = '<div class="empty-state">Searching and verifying live discussions...</div>';
       const score = document.getElementById('min-score').value || 75;
       try {
-        const res = await fetch(`/api/opportunities?product=AYANA&min_score=${score}&refresh=${refresh}`);
+        const product = document.querySelector('#product-select').value;
+        const res = await fetch(`/api/opportunities?product=${encodeURIComponent(product)}&min_score=${score}&refresh=${refresh}&include_research=true`);
         const opps = await res.json();
         if (!opps || opps.length === 0) {
           container.innerHTML = '<div class="empty-state">No opportunities found meeting score threshold ≥ ' + score + '.</div>';
@@ -363,6 +376,7 @@ def index():
             <div class="meta-text">${dateStr} • ${authorStr}</div>
           </div>
           <div class="problem-box">${escapeHtml(o.customer_problem)}</div>
+          <div class="relevance-box"><strong>Route:</strong> ${escapeHtml((o.signal_routes || []).join(', ') || 'Historical record: route pending review')} — ${escapeHtml(o.classification)}</div>
           <div class="relevance-box"><strong>Relevance:</strong> ${escapeHtml(o.why_relevant)}</div>
           <div class="evidence-quote"><strong>Evidence Excerpt:</strong>\\n"${escapeHtml(o.evidence_excerpt)}"</div>
           ${o.classification === 'ACTIONABLE_OPPORTUNITY' && o.suggested_response ? `<div class="response-section">
@@ -422,6 +436,10 @@ def index():
       return text.replace(/`/g, '\\`').replace(/\\$/g, '\\$');
     }
 
+    document.getElementById('product-select').addEventListener('change', function () {
+      document.getElementById('min-score').value = this.selectedOptions[0].dataset.threshold;
+      loadOpportunities(false);
+    });
     updateBudget();
     loadOpportunities(false);
   </script>

@@ -16,7 +16,7 @@ class Database:
         self._init_sqlite()
 
     def _init_supabase(self):
-        if settings.SUPABASE_URL and settings.SUPABASE_KEY:
+        if settings.SUPABASE_ENABLED and settings.SUPABASE_URL and settings.SUPABASE_KEY:
             try:
                 from supabase import create_client, Client
                 self.supabase_client: Optional[Client] = create_client(
@@ -121,6 +121,8 @@ class Database:
         return self.supabase_client is not None
 
     def save_opportunity(self, opp: CustomerOpportunity):
+        # Legacy schema has global URL uniqueness and no tenant owner. M1 uses ResearchStore.
+        raise PermissionError("Legacy opportunity writes are disabled until tenant migration")
         # 1. Save to Supabase if active
         if self.supabase_client:
             try:
@@ -291,6 +293,7 @@ class Database:
             return results
 
     def update_feedback(self, opp_id: str, feedback: str, notes: Optional[str] = None) -> bool:
+        raise PermissionError("Legacy feedback writes are disabled until tenant authorization")
         if self.supabase_client:
             try:
                 update_data = {"feedback": feedback}

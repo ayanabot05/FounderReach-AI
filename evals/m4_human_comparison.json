@@ -1,0 +1,23 @@
+[
+  {
+    "case_id": "A",
+    "scenario": "One verified customer question, an owned-site content gap, no verified social account.",
+    "human_label": "owned_website",
+    "label_origin": "human",
+    "label_note": "CEO direct reply, 2026-10-17"
+  },
+  {
+    "case_id": "B",
+    "scenario": "The same verified question and site gap, plus a founder-confirmed social account with tagged-link measurement ready.",
+    "human_label": "owned_social",
+    "label_origin": "human",
+    "label_note": "CEO direct reply, 2026-10-17"
+  },
+  {
+    "case_id": "C",
+    "scenario": "An owned page claim conflicts with verified evidence; content preparation is blocked and internal research remains available.",
+    "human_label": "community_research",
+    "label_origin": "human",
+    "label_note": "CEO direct reply, 2026-10-17"
+  }
+]

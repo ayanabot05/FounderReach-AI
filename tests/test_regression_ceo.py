@@ -3,7 +3,9 @@ from datetime import datetime, timezone, timedelta
 from founderreach.models import DiscussionItem, CustomerOpportunity
 from founderreach.validation.intent import intent_classifier
 from founderreach.validation.scorer import opportunity_scorer
-from founderreach.engine import AYANA_PROFILE
+from founderreach.profiles import load_profile
+
+AYANA_PROFILE = load_profile("ayana")
 
 def test_regression_ceo_hn_47396347_markoff():
     """

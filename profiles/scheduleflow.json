@@ -1,0 +1,15 @@
+{
+  "identifier": "scheduleflow", "confirmed": true, "name": "ScheduleFlow", "website": "https://example.com/scheduleflow",
+  "description": "Sample appointment scheduling SaaS for independent professionals.",
+  "target_audiences": ["independent consultants", "freelance tutors", "solo therapists"],
+  "keywords": ["appointment scheduling", "booking clients", "calendar booking", "no show reminders"],
+  "pain_points": ["manual appointment booking", "client no shows", "back and forth scheduling"],
+  "negative_keywords": ["restaurant reservation", "airline booking", "hospital staffing"],
+  "customer_fit_signals": ["my clients", "my consulting", "my tutoring", "my practice", "freelance", "independent consultant"],
+  "problem_patterns": ["\\bappointment\\b.*\\b(book|schedul|calendar)", "\\bclients?\\b.*\\b(no.show|book|schedul)", "\\bback.and.forth\\b.*\\bschedul"],
+  "direct_problem_patterns": ["\\b(?:i|we|my|our)\\b.*\\b(?:struggl|wast|los|miss|need|looking)\\w*.*\\b(?:appointment|booking|schedul|no.show)", "\\bmy clients?\\b.*\\b(?:miss|forget|no.show)\\w*.*\\bappointment"],
+  "disqualifying_patterns": ["\\bairline booking\\b", "\\brestaurant reservation\\b"],
+  "supported_languages": ["English"], "acquisition_objectives": ["qualified trial signups"],
+  "allowed_acquisition_channels": ["demand_evidence", "owned_channel", "partner_media"],
+  "minimum_score": 70, "minimum_confidence": 0.7
+}

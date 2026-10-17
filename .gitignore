@@ -1,4 +1,12 @@
 .env
+*preservation-20??-??-??/
+data/pytest_*/
+data/ayana_jest_cache/
+data/*_local_demo.json
+outputs/
+.baseline-head*/
+.baseline-head*.zip
+.pytest-closeout-temp/
 data/*.db
 __pycache__/
 .pytest_cache/

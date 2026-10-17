@@ -20,9 +20,12 @@ class Settings:
     # Financial Controls (INR)
     BUDGET_TARGET_INR: float = float(os.getenv("BUDGET_TARGET_INR", "600.00"))
     BUDGET_CEILING_INR: float = float(os.getenv("BUDGET_HARD_CEILING_INR", "1000.00"))
+    # Current CEO authorization. Historical budget targets do not authorize spending.
+    AUTHORIZED_NEW_SPEND_INR: float = 0.0
     
     # Supabase Cloud Database
-    SUPABASE_URL: str = os.getenv("SUPABASE_URL", "https://xsumvcqeqknshjwdnypy.supabase.co")
+    SUPABASE_ENABLED: bool = os.getenv("SUPABASE_ENABLED", "false").lower() in ("true", "1", "yes")
+    SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
     # Database access is server-only. Never silently use an anon key with broad RLS.
     SUPABASE_KEY: str = os.getenv("SUPABASE_SECRET_KEY") or os.getenv("SUPABASE_SERVICE_ROLE_KEY") or ""
     DATABASE_URL: str = os.getenv("DATABASE_URL", "")
