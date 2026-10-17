@@ -10,7 +10,7 @@ class ProductProfile(BaseModel):
     version: int = Field(default=1, ge=1)
     confirmed: bool = Field(default=False)
     name: str = Field(..., min_length=1, description="Business name")
-    website: HttpUrl = Field(..., description="Business website URL")
+    website: Optional[HttpUrl] = Field(default=None, description="Confirmed business website URL, if supplied")
     description: str = Field(..., min_length=1, description="Clear explanation of the product")
     target_audiences: List[str] = Field(default_factory=list, description="Target customer personas (e.g. NRIs with parents in India)")
     target_markets: List[str] = Field(default_factory=list, description="Target countries or regions (e.g. India, USA, Global)")

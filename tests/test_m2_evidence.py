@@ -259,3 +259,16 @@ def test_engine_logs_successful_empty_discovery_separately(tmp_path):
     assert engine.find_opportunities(load_profile("scheduleflow"), persist=True) == []
     runs = store.list_query_runs("scheduleflow")
     assert runs[0]["status"] == "success" and runs[0]["diagnostics"][0]["query"] == "appointments"
+
+
+def test_local_evidence_persistence_minimizes_identifiers(tmp_path):
+    store = ResearchStore(tmp_path / "research.db")
+    safe = public_evidence()
+    store.save_observation(safe)
+    assert store.get_observation("scheduleflow", safe.observation_id).source_id == safe.source_id
+    for text in ("Write to customer@example.com about appointments",
+                 "Call +1 415 555 0123 about appointments",
+                 "Ask @customer_name about appointments"):
+        with pytest.raises(ValueError, match="personal identifier"):
+            store.save_observation(safe.model_copy(update={"claim": text}))
+    assert store.get_observation("scheduleflow", safe.observation_id).claim == TEXT

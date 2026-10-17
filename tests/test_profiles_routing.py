@@ -27,7 +27,7 @@ def item(text, id="sample", age=2):
 
 def test_confirmed_profiles_load_and_suggestions_cannot_drive_engine(tmp_path):
     ayana, saas = load_profile("ayana"), load_profile("scheduleflow")
-    assert ayana.name == "AYANA" and saas.name == "ScheduleFlow"
+    assert ayana.name == "Synthetic Care" and saas.name == "ScheduleFlow"
     assert ayana.confirmed and saas.confirmed
     with pytest.raises(ValueError):
         load_profile("../ayana")

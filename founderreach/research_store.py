@@ -7,6 +7,7 @@ from pathlib import Path
 from founderreach.models import CustomerOpportunity
 from founderreach.identity import opportunity_id
 from founderreach.evidence import EvidenceObservation
+from founderreach.privacy import require_minimized_text
 
 
 class ResearchStore:
@@ -36,6 +37,13 @@ class ResearchStore:
         return sqlite3.connect(self.path)
 
     def save(self, opportunity: CustomerOpportunity):
+        require_minimized_text(opportunity.evidence_excerpt, opportunity.direct_problem_evidence,
+                               opportunity.customer_problem, opportunity.why_relevant,
+                               opportunity.suggested_response,
+                               opportunity.verification.evidence_excerpt if opportunity.verification else None,
+                               opportunity.verification.verification_notes if opportunity.verification else None,
+                               opportunity.feedback_notes, *opportunity.rejection_reasons)
+        opportunity = opportunity.model_copy(update={"author": None})
         if not opportunity.business_id or not opportunity.source_id:
             raise ValueError("Stable business and source IDs are required")
         if opportunity.id != opportunity_id(opportunity.business_id, opportunity.source_id):
@@ -62,6 +70,7 @@ class ResearchStore:
         return [CustomerOpportunity.model_validate_json(row[0]) for row in rows]
 
     def save_observation(self, observation: EvidenceObservation) -> None:
+        require_minimized_text(observation.excerpt, observation.claim)
         with self._connect() as conn:
             old = conn.execute("SELECT payload_json FROM evidence_observations WHERE business_id=? AND observation_id=?",
                                (observation.business_id, observation.observation_id)).fetchone()
@@ -94,6 +103,7 @@ class ResearchStore:
 
     def record_review(self, business: str, observation: str, reviewer: str,
                       decision: str, reason: str) -> EvidenceObservation:
+        require_minimized_text(reason)
         if decision not in ("confirmed", "rejected") or not reviewer.strip() or not reason.strip():
             raise ValueError("Review requires decision, reviewer and reason")
         with self._connect() as conn:

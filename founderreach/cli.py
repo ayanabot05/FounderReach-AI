@@ -1,6 +1,7 @@
 import argparse
 import sys
 import json
+from pathlib import Path
 from typing import Optional
 
 # Ensure UTF-8 stdout on Windows terminals
@@ -21,20 +22,14 @@ from rich.panel import Panel
 from rich.text import Text
 from rich import box
 
-from founderreach.config import settings
 from founderreach.models import ProductProfile
-from founderreach.engine import engine
-from founderreach.profiles import load_profile
-from founderreach.db import db
-from founderreach.ai.cost_tracker import cost_tracker
-from founderreach.validation.verifier import source_verifier
-from founderreach.validation.scorer import opportunity_scorer
-from founderreach.models import DiscussionItem
 
 console = Console(force_terminal=True, legacy_windows=False)
 
 def cmd_find(args):
     """Find verified customer opportunities."""
+    from founderreach.engine import engine
+    from founderreach.profiles import load_profile
     profile = load_profile(args.profile)
     console.print(f"\n[bold cyan]🔍 FounderReach AI Discovery Engine[/bold cyan]")
     console.print(f"Product: [green]{profile.name}[/green] ({profile.website})")
@@ -89,6 +84,7 @@ def cmd_find(args):
 
 def cmd_detail(args):
     """Display full details and suggested response for an opportunity."""
+    from founderreach.db import db
     opps = db.get_opportunities(min_score=0)
     match = None
     for o in opps:
@@ -129,6 +125,7 @@ def cmd_detail(args):
 
 def cmd_verify(args):
     """Perform live HTTP verification of an URL and excerpt."""
+    from founderreach.validation.verifier import source_verifier
     console.print(f"Verifying live source: [blue]{args.url}[/blue]")
     verif = source_verifier.verify_source(args.url, args.excerpt or "")
     if verif.verified:
@@ -138,6 +135,7 @@ def cmd_verify(args):
 
 def cmd_budget(args):
     """Audit financial spending ledger."""
+    from founderreach.ai.cost_tracker import cost_tracker
     summary = cost_tracker.get_spending_summary()
     table = Table(title="FounderReach AI Budget & Financial Audit", box=box.ROUNDED)
     table.add_column("Metric", style="cyan")
@@ -164,7 +162,38 @@ def cmd_serve(args):
     console.print(f"[bold green]Starting FounderReach AI UI on http://localhost:{args.port}[/bold green]")
     uvicorn.run("founderreach.web.app:app", host="127.0.0.1", port=args.port, reload=False)
 
-def main():
+
+def cmd_client_review(args):
+    """Run a founder-confirmed, fixture-only M1–M4 client review."""
+    from founderreach.client_review import run_client_review
+
+    identifier = args.business_id or input("Business ID (lowercase slug): ").strip()
+    name = args.name or input("Business name: ").strip()
+    description = args.description or input("Business description: ").strip()
+    draft = ProductProfile(identifier=identifier, name=name, description=description,
+                           website=args.url, confirmed=False,
+                           target_audiences=args.audience or [], pain_points=args.pain_point or [])
+    print("Review this business profile:\n" + json.dumps({
+        "business_id": draft.identifier, "name": draft.name,
+        "website": str(draft.website) if draft.website else None,
+        "description": draft.description, "audiences": draft.target_audiences,
+        "pain_points": draft.pain_points,
+    }, ensure_ascii=True, indent=2))
+    if input("Type CONFIRM to self-declare this profile is correct (identity is not verified): ").strip() != "CONFIRM":
+        raise PermissionError("Founder confirmation was not given")
+    profile = ProductProfile.model_validate({**draft.model_dump(mode="json"), "confirmed": True})
+    result = run_client_review(profile,
+        permission_path=Path(args.permission) if args.permission else None,
+        fixture_path=Path(args.fixtures) if args.fixtures else None,
+        attestations_path=Path(args.attestations) if args.attestations else None)
+    if args.report:
+        with Path(args.report).open("x", encoding="utf-8") as output:
+            output.write(result.report)
+        print(f"Local report: {args.report}")
+    else:
+        print(result.report)
+
+def main(argv=None):
     parser = argparse.ArgumentParser(description="FounderReach AI: Verified Customer Opportunity Finder")
     subparsers = parser.add_subparsers(dest="command", help="Command to run")
 
@@ -205,7 +234,21 @@ def main():
     p_serve.add_argument("--port", type=int, default=8000, help="Port to run web app (default: 8000)")
     p_serve.set_defaults(func=cmd_serve)
 
-    args = parser.parse_args()
+    # Founder-confirmed client review. There is deliberately no live fetch option.
+    p_review = subparsers.add_parser("client-review", help="Offline, evidence-linked client review")
+    p_review.add_argument("--url", help="Exact HTTPS page URL to review from local fixtures")
+    p_review.add_argument("--business-id", help="Stable lowercase business slug")
+    p_review.add_argument("--name", help="Business name")
+    p_review.add_argument("--description", help="Business description")
+    p_review.add_argument("--audience", action="append", help="Target audience; repeat if needed")
+    p_review.add_argument("--pain-point", action="append", help="Problem solved; repeat if needed")
+    p_review.add_argument("--permission", help="Local exact-origin offline permission JSON")
+    p_review.add_argument("--fixtures", help="Local bounded HTML fixture JSON")
+    p_review.add_argument("--attestations", help="Optional minimized founder attestation JSON")
+    p_review.add_argument("--report", help="New local Markdown report path; never overwrites")
+    p_review.set_defaults(func=cmd_client_review)
+
+    args = parser.parse_args(argv)
     if not args.command:
         parser.print_help()
         sys.exit(0)

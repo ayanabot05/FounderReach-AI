@@ -1,10 +1,9 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv
 
-# Load .env if present
+# Settings use the process environment. Importing this module must never read
+# a credential file; an authorized operator can populate the environment first.
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
 
 class Settings:
     # Project Info
@@ -23,12 +22,8 @@ class Settings:
     # Current CEO authorization. Historical budget targets do not authorize spending.
     AUTHORIZED_NEW_SPEND_INR: float = 0.0
     
-    # Supabase Cloud Database
-    SUPABASE_ENABLED: bool = os.getenv("SUPABASE_ENABLED", "false").lower() in ("true", "1", "yes")
-    SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
-    # Database access is server-only. Never silently use an anon key with broad RLS.
-    SUPABASE_KEY: str = os.getenv("SUPABASE_SECRET_KEY") or os.getenv("SUPABASE_SERVICE_ROLE_KEY") or ""
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "")
+    # Cloud Database disabled in local-only mode (M1 uses local SQLite ResearchStore)
+    SUPABASE_ENABLED: bool = False
     
     # Source Connectors
     HN_ENABLED: bool = os.getenv("HN_ENABLED", "true").lower() in ("true", "1", "yes")

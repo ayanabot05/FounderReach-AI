@@ -95,10 +95,16 @@ class FixtureSiteFetcher:
     def fetch(self, url: str) -> FetchOutcome:
         url = canonical_url(url)
         self.calls.append(url)
-        record = self.pages.get(url, (404, "text/plain", ""))
+        if url not in self.pages:
+            raise MissingFixtureError("No fixture was supplied for this URL")
+        record = self.pages[url]
         status, content_type, text = record[:3]
         headers = record[3] if len(record) > 3 else {}
         return FetchOutcome(status, content_type, text.encode("utf-8"), url, headers)
+
+
+class MissingFixtureError(WebsiteFetchError):
+    """A fixture omission is unknown, not an observed HTTP response."""
 
 
 class SitePage(BaseModel):
@@ -230,6 +236,8 @@ class SiteAuditor:
               approved_urls: list[str]) -> SiteAudit:
         if not profile.confirmed:
             raise PermissionError("A confirmed profile is required")
+        if profile.website is None:
+            raise ValueError("A confirmed website is required for a site audit")
         site_origin = origin(str(profile.website))
         if origin(approved_origin) != site_origin:
             raise PermissionError("Origin must match the founder-confirmed website")
@@ -269,6 +277,8 @@ class SiteAuditor:
                 result.findings.append(self._finding("missing_sitemap", sitemap_url,
                     f"HTTP {sitemap.status}; content type {sitemap.content_type}", "Sitemap was not available as XML",
                     "medium", "Provide an XML sitemap for the approved inventory", 0.9, "Check sitemap XML manually"))
+        except MissingFixtureError:
+            result.fetch_errors[sitemap_url] = "MissingFixtureError"
         except (WebsiteFetchError, UnsafeWebsiteError, ET.ParseError, ValueError) as exc:
             result.fetch_errors[sitemap_url] = type(exc).__name__
             result.findings.append(self._finding("missing_sitemap", sitemap_url, type(exc).__name__,

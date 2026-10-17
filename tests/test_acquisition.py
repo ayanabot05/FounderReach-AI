@@ -13,11 +13,14 @@ from founderreach.approval_gate import approval_message, preflight_message
 import founderreach.approval_gate as gate
 
 
-LABELS = Path(__file__).resolve().parents[1] / "reports" / "INDEPENDENT_LABELS.json"
+import tempfile
+from _synthetic_profiles import CARE_SYNTHETIC_LABELS
 
 
 def decision():
-    return build_ayana_decision(str(LABELS))
+    labels_file = Path(tempfile.gettempdir()) / "founderreach_synthetic_labels.json"
+    labels_file.write_text(json.dumps(CARE_SYNTHETIC_LABELS), encoding="utf-8")
+    return build_ayana_decision(str(labels_file))
 
 
 def baseline(tmp_path):
@@ -64,8 +67,10 @@ def test_baseline_required_and_blank_template_rejected(tmp_path):
     run = decision()
     with pytest.raises(PermissionError):
         run.prepare_action("Copy", "https://www.ayanabott.com/")
+    blank_md = tmp_path / "MANUAL_BASELINE_TEMPLATE.md"
+    blank_md.write_text("# Template", encoding="utf-8")
     with pytest.raises(ValueError):
-        run.freeze_baseline(str(Path(__file__).resolve().parents[1] / "reports" / "AYANA_MANUAL_BASELINE_V1.md"))
+        run.freeze_baseline(str(blank_md))
     run.freeze_baseline(str(baseline(tmp_path)))
     assert run.baseline_artifact
 

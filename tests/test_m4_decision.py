@@ -327,8 +327,7 @@ def test_fixture_gate_blocked_and_no_rank_stage_network_or_contact(tmp_path, mon
     assert decision.execution_mode == "LOCAL_REVIEW_ONLY"
 
 
-def test_ceo_labeled_comparison_and_provenance(tmp_path):
-    source = Path(__file__).resolve().parents[1] / "evals" / "m4_human_comparison.json"
+def test_comparison_requires_real_human_provenance(tmp_path):
     engine = AcquisitionDecisionEngine()
     a = engine.decide(context(tmp_path / "a"))
     b = engine.decide(context(tmp_path / "b", social=True))
@@ -343,15 +342,11 @@ def test_ceo_labeled_comparison_and_provenance(tmp_path):
     c = engine.decide(c_bundle)
     choices = {case: decision.primary.candidate.channel if decision.primary else "no_action"
                for case, decision in {"A": a, "B": b, "C": c}.items()}
-    report = compare_human_labels(choices, source)
-    assert report["labeled_count"] == 3 and report["pending_case_ids"] == []
-    assert report["agreement_count"] == 3 and report["agreement_rate"] == 1.0
-    assert report["disagreements"] == []
     synthetic = tmp_path / "synthetic_labels.json"
-    synthetic.write_text(json.dumps([{"case_id": "A", "human_label": "owned_social",
-                                      "label_origin": "human"}]), encoding="utf-8")
-    report = compare_human_labels({"A": "owned_website"}, synthetic)
-    assert report["agreement_count"] == 0 and len(report["disagreements"]) == 1
+    synthetic.write_text(json.dumps([{"case_id": "A", "human_label": None,
+                                      "label_origin": "pending"}]), encoding="utf-8")
+    report = compare_human_labels(choices, synthetic)
+    assert report["labeled_count"] == 0 and report["pending_case_ids"] == ["A"]
     synthetic.write_text(json.dumps([{"case_id": "A", "human_label": "owned_social",
                                       "label_origin": "agent"}]), encoding="utf-8")
     with pytest.raises(ValueError):

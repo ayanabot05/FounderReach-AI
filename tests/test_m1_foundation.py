@@ -58,6 +58,8 @@ def test_stable_ids_and_two_businesses_can_preserve_one_source_url(tmp_path, mon
     assert results[0].id != results[1].id
     assert results[0].original_url == results[1].original_url
     assert len(store.list_business("ayana")) == len(store.list_business("scheduleflow")) == 1
+    store.save(results[0].model_copy(update={"author": "customer_handle"}))
+    assert store.list_business("ayana")[0].author is None
     alias_id = source_id("Hacker News", "other-native-id")
     with pytest.raises(ValueError):
         store.save(results[0].model_copy(update={"source_id": alias_id,

@@ -1,16 +1,14 @@
-import json
-from pathlib import Path
 from evaluate_independent import evaluate
 from founderreach.ai.analyzer import opportunity_analyzer
 from founderreach.profiles import load_profile
+from founderreach.models import DiscussionItem
+from _synthetic_profiles import CARE_SYNTHETIC_LABELS
 
 AYANA_PROFILE = load_profile("ayana")
-from founderreach.models import DiscussionItem
 
 
 def test_independent_challenge_has_real_positives_and_negatives():
-    rows = json.loads((Path(__file__).parents[1] / "reports" / "INDEPENDENT_LABELS.json").read_text(encoding="utf-8"))
-    result = evaluate(rows)
+    result = evaluate(CARE_SYNTHETIC_LABELS)
     assert result["counts"]["tp"] >= 2
     assert result["counts"]["fn"] == 0
     assert result["counts"]["fp"] == 0
