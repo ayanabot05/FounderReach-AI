@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FounderReach AI — Local Client Website Review</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-badge">LOCAL-ONLY</span>
+      <h1>FounderReach AI</h1>
+      <p class="subtitle">Improve your website &amp; discover demand without touching client data, repositories, or credentials.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Client Website Review Input</h2>
+      <p class="muted">All checks are read-only and local. Suggestions are generated as copyable snippets for the founder to apply.</p>
+      <form id="review-form">
+        <div class="field-grid">
+          <label>
+            <span>Business Name</span>
+            <input type="text" id="business-name" placeholder="e.g. ScheduleFlow" required>
+          </label>
+          <label>
+            <span>Website URL (HTTPS)</span>
+            <input type="url" id="website-url" placeholder="https://scheduleflow.example" required>
+          </label>
+        </div>
+        <label>
+          <span>One-Sentence Product Description</span>
+          <input type="text" id="description" placeholder="Automated appointment reminders and booking workflows for clinics and consultants." required>
+        </label>
+        <div class="field-grid">
+          <label>
+            <span>Target Audience</span>
+            <input type="text" id="audience" placeholder="Independent clinics, service businesses" required>
+          </label>
+          <label>
+            <span>Primary Customer Pain Point</span>
+            <input type="text" id="pain-point" placeholder="Missed client appointments and manual follow-ups" required>
+          </label>
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn-primary">Preview CLI Review Command</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card" id="output-card" hidden>
+      <h2>Local Review Command (Copyable)</h2>
+      <pre id="cli-command" class="code-box"></pre>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

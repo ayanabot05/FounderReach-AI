@@ -1,24 +1,3 @@
-.env
-*preservation-20??-??-??/
-data/pytest_*/
-data/ayana_jest_cache/
-data/*_local_demo.json
-outputs/
-.baseline-head*/
-.baseline-head*.zip
-.pytest-closeout-temp/
-data/*.db
-__pycache__/
-.pytest_cache/
-*.pyc
-.local_pg_ayana/
-.test_tmp_*/
-.jest_cache_brand/
-ayana_local_api.stdout.log
-ayana_local_api.stderr.log
-
-
-
 # Environment variables and secrets
 .env
 .env.*
@@ -40,8 +19,9 @@ env/
 build/
 dist/
 
-# Testing and benchmarks
+# Testing and temporary caches
 .pytest_cache/
+.pytest-*/
 .coverage
 .coverage.*
 htmlcov/
@@ -51,25 +31,25 @@ htmlcov/
 .tox/
 .nox/
 
-# Local databases
-.local_pg_ayana/
+# Local databases and generated data
+data/
+backend/data/
+outputs/
 *.sqlite
 *.sqlite3
 *.db
 *.db-journal
 
-# Node.js
+# Node.js / Frontend build caches
 node_modules/
 .npm/
 .next/
 coverage/
 *.tsbuildinfo
 
-# Generated output
+# Generated output and logs
 reports/generated/
 reports/tmp/
-data/tmp/
-data/cache/
 *.log
 logs/
 
@@ -80,9 +60,3 @@ Thumbs.db
 !.vscode/extensions.json
 !.vscode/settings.example.json
 .idea/
-
-# Deployment caches
-.vercel/
-.terraform/
-*.tfstate
-*.tfstate.*
