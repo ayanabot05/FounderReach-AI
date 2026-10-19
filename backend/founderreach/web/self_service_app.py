@@ -95,6 +95,12 @@ def create_app(db_path: Path | None = None, fetcher=None, recommender=None):
         return FileResponse(FRONTEND / "styles.css", media_type="text/css",
                             headers={"Cache-Control": "no-store"})
 
+    from fastapi.staticfiles import StaticFiles
+    app.mount("/styles", StaticFiles(directory=FRONTEND / "styles"), name="styles")
+    app.mount("/js", StaticFiles(directory=FRONTEND / "js"), name="js")
+    app.mount("/vendor", StaticFiles(directory=FRONTEND / "vendor"), name="vendor")
+
+
     @app.post("/api/register")
     def register(data: Credentials):
         try:

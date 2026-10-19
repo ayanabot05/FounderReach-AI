@@ -2,60 +2,98 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FounderReach AI — Local Client Website Review</title>
-  <link rel="stylesheet" href="/styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>FounderReach AI — Autonomous Growth Agent for SEO, AEO &amp; GEO Discoverability</title>
+  <meta name="description" content="Get your startup discovered on Google Search (SEO), Google AI Overviews (AEO), and ChatGPT/Perplexity (GEO). Live website audit, 1-click deployment scripts, and active buyer demand radar.">
+  <meta name="keywords" content="autonomous growth agent, SEO audit, AEO optimization, GEO optimization, llms.txt generator, Google AI Overviews, Perplexity discoverability, founder customer acquisition">
+  <meta name="author" content="FounderReach AI">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="theme-color" content="#e2e8f0">
+  <link rel="canonical" href="https://founderreach.ai/">
+
+  <!-- AI Engine Knowledge Discovery -->
+  <link rel="help" type="text/plain" href="/llms.txt" title="LLM Knowledge Graph Specification">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://founderreach.ai/">
+  <meta property="og:title" content="FounderReach AI — Autonomous SEO, AEO &amp; GEO Growth Agent">
+  <meta property="og:description" content="The autonomous agent that audits your domain, models how Google and LLMs perceive you, and discovers verified customer demand on Reddit and Hacker News.">
+  <meta property="og:site_name" content="FounderReach AI">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="FounderReach AI — Autonomous Growth Agent">
+  <meta name="twitter:description" content="Get your product indexed by Google and cited by ChatGPT &amp; Perplexity. Real-time customer demand discovery.">
+
+
+  <!-- Structured Data: SoftwareApplication & Organization & FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://founderreach.ai/#app",
+        "name": "FounderReach AI",
+        "url": "https://founderreach.ai",
+        "description": "Autonomous growth agent that audits startup websites, models search engine and AI perception, generates deployment scripts, and discovers real customer demand.",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "All",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "description": "Free Instant Diagnostic Audit"
+        }
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://founderreach.ai/#org",
+        "name": "FounderReach AI",
+        "url": "https://founderreach.ai",
+        "logo": "https://founderreach.ai/logo.png",
+        "sameAs": [
+          "https://github.com/founderreach",
+          "https://twitter.com/founderreach"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://founderreach.ai/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is FounderReach AI?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "FounderReach AI is an autonomous growth platform designed for bootstrapped and early-stage founders. It inspects live web infrastructure, models Google and AI answer engine perception, synthesizes Schema.org and /llms.txt scripts, and discovers real customer demand on Reddit and Hacker News."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does FounderReach AI help with AEO and GEO?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "AEO (Answer Engine Optimization) prepares your website for direct answers in Google AI Overviews using structured FAQPage and Organization schema. GEO (Generative Engine Optimization) optimizes brand recall in ChatGPT, Claude, and Perplexity through authoritative /llms.txt knowledge graphs and crawl permissions."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does Customer Demand Radar work?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The Demand Radar continuously scans community discussions on Reddit and Hacker News for founders and buyers actively seeking solutions in your niche, providing transparent diagnostic playbooks to acquire initial users without spam."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
-  <header class="app-header">
-    <div class="brand">
-      <span class="brand-badge">LOCAL-ONLY</span>
-      <h1>FounderReach AI</h1>
-      <p class="subtitle">Improve your website &amp; discover demand without touching client data, repositories, or credentials.</p>
-    </div>
-  </header>
-
-  <main class="container">
-    <section class="card">
-      <h2>Client Website Review Input</h2>
-      <p class="muted">All checks are read-only and local. Suggestions are generated as copyable snippets for the founder to apply.</p>
-      <form id="review-form">
-        <div class="field-grid">
-          <label>
-            <span>Business Name</span>
-            <input type="text" id="business-name" placeholder="e.g. ScheduleFlow" required>
-          </label>
-          <label>
-            <span>Website URL (HTTPS)</span>
-            <input type="url" id="website-url" placeholder="https://scheduleflow.example" required>
-          </label>
-        </div>
-        <label>
-          <span>One-Sentence Product Description</span>
-          <input type="text" id="description" placeholder="Automated appointment reminders and booking workflows for clinics and consultants." required>
-        </label>
-        <div class="field-grid">
-          <label>
-            <span>Target Audience</span>
-            <input type="text" id="audience" placeholder="Independent clinics, service businesses" required>
-          </label>
-          <label>
-            <span>Primary Customer Pain Point</span>
-            <input type="text" id="pain-point" placeholder="Missed client appointments and manual follow-ups" required>
-          </label>
-        </div>
-        <div class="actions">
-          <button type="submit" class="btn-primary">Preview CLI Review Command</button>
-        </div>
-      </form>
-    </section>
-
-    <section class="card" id="output-card" hidden>
-      <h2>Local Review Command (Copyable)</h2>
-      <pre id="cli-command" class="code-box"></pre>
-    </section>
-  </main>
-
-  <script src="/app.js"></script>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>

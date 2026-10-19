@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  /* ==========================================================================
+     FounderReach AI — Premium 4-Color Luxury System
+     Palette:
+     #5D9253 — Forest Sage Green
+     #FFFAD3 — Warm Champagne Cream (Luxury accent & glow)
+     #8AD6D1 — Aqua Mint Teal (Technical & protocol accent)
+     #D46D25 — Terracotta Copper (High-conversion CTA & alert)
+     NO BLACK. Clean, luminous, crisp modern SaaS.
+     ========================================================================== */
+  --bg-primary: #f8faf8;
+  --bg-secondary: #f0f5f1;
+  --bg-subtle: #e5ede6;
+  --bg-card: #ffffff;
+  --bg-card-hover: #ffffff;
+  --bg-card-champagne: #fffad3;
+  --bg-glass: rgba(255, 255, 255, 0.92);
+  --bg-input: #ffffff;
+  --bg-code: #172d15;
+  --text-code: #8ad6d1;
+
+  /* High-Contrast Luxury Forest Slate Typography (NO BLACK) */
+  --text-main: #132415;
+  --text-body: #2c3f2e;
+  --text-muted: #536b56;
+  --text-dim: #78927b;
+
+  /* The 4 Specified Palette Constants */
+  --color-green: #5d9253;
+  --color-cream: #fffad3;
+  --color-teal: #8ad6d1;
+  --color-copper: #d46d25;
+
+  /* Role-based tokens */
+  --accent-green: #5d9253;
+  --accent-green-hover: #4d7d44;
+  --accent-green-bg: rgba(93, 146, 83, 0.12);
+
+  --accent-copper: #d46d25;
+  --accent-copper-hover: #be5f1d;
+  --accent-copper-bg: rgba(212, 109, 37, 0.12);
+
+  --accent-teal: #8ad6d1;
+  --accent-teal-dark: #3b918b;
+  --accent-teal-bg: rgba(138, 214, 209, 0.18);
+
+  --accent-cream: #fffad3;
+  --accent-cream-bg: rgba(255, 250, 211, 0.7);
+
+  /* Gradients */
+  --gradient-brand: linear-gradient(135deg, #5d9253 0%, #3b918b 50%, #d46d25 100%);
+  --gradient-copper: linear-gradient(135deg, #d46d25 0%, #e67d32 100%);
+  --gradient-green: linear-gradient(135deg, #5d9253 0%, #76a86c 100%);
+  --gradient-teal: linear-gradient(135deg, #8ad6d1 0%, #5d9253 100%);
+  --gradient-champagne: linear-gradient(135deg, #fffad3 0%, #ffffff 100%);
+  --gradient-card: #ffffff;
+
+  /* Borders */
+  --border-subtle: rgba(93, 146, 83, 0.16);
+  --border-medium: rgba(93, 146, 83, 0.38);
+  --border-strong: #d46d25;
+  --border-teal: #8ad6d1;
+  --border-green: #5d9253;
+
+  /* Shadows - Crisp luxury elevations */
+  --shadow-sm: 0 2px 6px rgba(93, 146, 83, 0.06), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 8px 24px -4px rgba(93, 146, 83, 0.12), 0 0 0 1px rgba(93, 146, 83, 0.1);
+  --shadow-lg: 0 18px 40px -10px rgba(93, 146, 83, 0.16), 0 0 0 1px rgba(93, 146, 83, 0.15);
+  --shadow-glow-copper: 0 6px 20px -2px rgba(212, 109, 37, 0.35);
+  --shadow-glow-green: 0 6px 20px -2px rgba(93, 146, 83, 0.3);
+
+  /* Radius Tokens */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 26px;
+  --radius-full: 9999px;
+
+  /* Layout & Fonts */
+  --max-width: 1240px;
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}

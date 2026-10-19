@@ -1,0 +1,21 @@
+# FounderReach AI
+> The Autonomous Growth & Discoverability Agent for Founders
+
+## Overview
+FounderReach AI is an autonomous growth platform that audits websites for SEO (Search Engine Optimization), AEO (Answer Engine Optimization), and GEO (Generative Engine Optimization), generates structured deployment scripts (Schema.org JSON-LD, /llms.txt, FAQPage), and scans community channels (Reddit, Hacker News) for active customer buyer demand.
+
+## Core Services & Architectures
+- **Autonomous Technical Sentinel**: Inspects DNS, TLS 1.3, Robots crawl boundaries, and latencies.
+- **Multi-Surface Perception Modeling**: Simulates how Google Search, Google AI Overviews, ChatGPT, and Perplexity perceive any startup domain.
+- **Fix Synthesis Studio**: Generates 1-click copyable Schema.org JSON-LD, /llms.txt, and meta tags.
+- **Customer Demand Discovery Radar**: Discovers active buyer discussions on Reddit (e.g. r/SideProject, r/SaaS) and Hacker News with non-spam founder playbooks.
+
+## Pricing Philosophy
+Transparent and accessible for bootstrapped founders:
+- Free Diagnostic: $0 forever
+- Autonomous Growth Agent: $12/month or $29 One-Time Lifetime per project
+- Growth Operations: $49/month for agencies and multi-project founders
+
+## Canonical Reference
+- Website: https://founderreach.ai
+- Knowledge Graph: https://founderreach.ai/llms.txt
