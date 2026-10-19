@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { LayoutDashboard, Zap, User, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, Zap, User, LogOut, Menu, X, ShieldAlert } from "lucide-react";
 
 export function Navbar({ currentView, setCurrentView, user, setUser, onTryDemo }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -55,6 +55,25 @@ export function Navbar({ currentView, setCurrentView, user, setUser, onTryDemo }
             <LayoutDashboard size={14} />
             <span>Growth Dashboard</span>
           </button>
+
+          {user?.role === "admin" && (
+            <button
+              type="button"
+              className={`btn btn-sm ${currentView === "admin" ? "btn-primary" : "btn-secondary"}`}
+              onClick={() => setCurrentView("admin")}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.4rem",
+                borderColor: "var(--accent-copper)",
+                color: currentView === "admin" ? undefined : "var(--accent-copper)",
+                fontWeight: 800
+              }}
+            >
+              <ShieldAlert size={14} />
+              <span>Admin Console</span>
+            </button>
+          )}
 
           {currentView === "landing" && (
             <button
@@ -206,6 +225,21 @@ export function Navbar({ currentView, setCurrentView, user, setUser, onTryDemo }
               <LayoutDashboard size={14} />
               <span>Dashboard</span>
             </button>
+
+            {user?.role === "admin" && (
+              <button
+                type="button"
+                className={`btn btn-sm ${currentView === "admin" ? "btn-primary" : "btn-secondary"}`}
+                onClick={() => {
+                  setCurrentView("admin");
+                  setMobileMenuOpen(false);
+                }}
+                style={{ flex: 1, borderColor: "var(--accent-copper)", color: currentView === "admin" ? undefined : "var(--accent-copper)" }}
+              >
+                <ShieldAlert size={14} />
+                <span>Admin</span>
+              </button>
+            )}
 
             {!user && (
               <button

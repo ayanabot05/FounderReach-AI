@@ -96,9 +96,12 @@ def create_app(db_path: Path | None = None, fetcher=None, recommender=None):
                             headers={"Cache-Control": "no-store"})
 
     from fastapi.staticfiles import StaticFiles
-    app.mount("/styles", StaticFiles(directory=FRONTEND / "styles"), name="styles")
-    app.mount("/js", StaticFiles(directory=FRONTEND / "js"), name="js")
-    app.mount("/vendor", StaticFiles(directory=FRONTEND / "vendor"), name="vendor")
+    if (FRONTEND / "styles").exists():
+        app.mount("/styles", StaticFiles(directory=FRONTEND / "styles"), name="styles")
+    if (FRONTEND / "js").exists():
+        app.mount("/js", StaticFiles(directory=FRONTEND / "js"), name="js")
+    if (FRONTEND / "vendor").exists():
+        app.mount("/vendor", StaticFiles(directory=FRONTEND / "vendor"), name="vendor")
 
 
     @app.post("/api/register")

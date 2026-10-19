@@ -5,6 +5,7 @@ import { Toast } from "./components/Toast";
 import { LandingView } from "./views/LandingView";
 import { AuthView } from "./views/AuthView";
 import { DashboardView } from "./views/DashboardView";
+import { AdminView } from "./views/AdminView";
 import { ApiClient } from "./api/client";
 
 const apiClient = new ApiClient();
@@ -148,6 +149,13 @@ export function App() {
           isAuditing={isAuditing}
           onCopyPlaybook={handleCopyPlaybook}
           onCopyScript={handleCopyScript}
+        />
+      )}
+
+      {currentView === "admin" && (
+        <AdminView
+          user={user}
+          onNavigateDashboard={() => setCurrentView("dashboard")}
         />
       )}
 

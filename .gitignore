@@ -1,8 +1,11 @@
-# Environment variables and secrets
+# =========================================================================
+# FounderReach AI .gitignore
+# =========================================================================
+
+# Environment variables & secrets
 .env
 .env.*
 !.env.example
-!.env.*.example
 *.pem
 *.key
 *service-account*.json
@@ -17,21 +20,20 @@ venv/
 env/
 *.egg-info/
 build/
-dist/
 
-# Testing and temporary caches
+# Testing & Caches
 .pytest_cache/
 .pytest-*/
 .coverage
 .coverage.*
 htmlcov/
 .benchmarks/
-.jest_cache_brand/
-.test_tmp_*/
+.jest_cache/
 .tox/
 .nox/
+.agents/
 
-# Local databases and generated data
+# Local databases and runtime data
 data/
 backend/data/
 outputs/
@@ -40,20 +42,27 @@ outputs/
 *.db
 *.db-journal
 
-# Node.js / Frontend build caches
+# Node.js & Vite build caches
 node_modules/
 .npm/
 .next/
 coverage/
 *.tsbuildinfo
+frontend/node_modules/
+dist/
+frontend/dist/
 
-# Generated output and logs
-reports/generated/
-reports/tmp/
+# Test screenshots and temporary artifacts
+*.png
+*.jpg
+*.jpeg
+*.cjs
 *.log
 logs/
+reports/generated/
+reports/tmp/
 
-# OS and IDE
+# OS and IDE files
 .DS_Store
 Thumbs.db
 .vscode/*

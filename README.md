@@ -45,10 +45,14 @@ FounderReach AI is an autonomous website analysis (SEO, AEO, GEO) and evidence-v
 - **Three Core Cards:** "Fixes Needed" (with direct fix triggers), "Fixes Completed / Verified" (green checkmarks), and "Customer Signals".
 - **Live Evidence Console:** Shows real-time inspection parameters, "Recheck Target" button, and "Export Report" button.
 
-### 8. Production SaaS Enhancements (P2 – P4)
-- **P2 User Authentication (`backend/founderreach/auth.py`):** Multi-tenant auth with salted `PBKDF2-HMAC-SHA256` password hashing (100,000 iterations), signed `PyJWT` tokens (HS256, 7-day expiration), and SQLite user persistence.
-- **P3 Autonomous Background Scheduler (`backend/founderreach/scheduler.py`):** `APScheduler` background daemon executing 6-hour recurring scans for registered domains with audit snapshots and drift history.
-- **P4 Reddit API Connector (`backend/founderreach/connectors/reddit.py`):** OAuth2 client credentials flow for commercial Reddit API ingestion (disabled by default unless configured in `.env`).
+### 8. Production SaaS Enhancements & Super Admin Console
+- **Super Admin Portal (`AdminView.jsx` & `admin.py`):** Executive telemetry dashboard with tabs for KPI Overview, User Management (role switching, paginated user list, account deletion), Stripe Payments tracking, live audit logs, and system health status.
+- **Stripe Checkout Integration (`billing.py`):** Checkout sessions for the $49 Launch Audit and recurring subscriptions ($29 Founder, $69 Growth, $199 Agency), with automated webhook ingestion and test-mode sandbox fallback.
+- **Multi-Tenant JWT Auth (`auth.py`):** PBKDF2 password hashing (100,000 iterations), HS256 signed JWT tokens, and auto-bootstrapping master admin credentials (`ADMIN_EMAIL`, `ADMIN_PASSWORD` in `.env`).
+- **Supabase Cloud Sync with SQLite Fallback (`db.py`):** Stores users, payments, monitored domains, analytics, and audit snapshots in Supabase PostgreSQL when configured, or transparently falls back to local SQLite.
+- **Sliding-Window IP Rate Limiting (`rate_limit.py`):** Protects against audit abuse with sliding-window rate limiting (60 requests/min default) returning `HTTP 429` with `Retry-After`.
+- **TTL Cache Layer (`db.py`):** In-memory and persisted caching with configurable TTL (default: 3600s) to avoid repeated public scraping within short intervals.
+- **Autonomous Background Scheduler (`scheduler.py`):** Background `APScheduler` engine running 6-hour drift checks on registered domains.
 
 ---
 
@@ -58,16 +62,21 @@ FounderReach AI is an autonomous website analysis (SEO, AEO, GEO) and evidence-v
 founderreach.ai/
 ├── frontend/                           # React 19 + Vite Single-Page Application
 │   ├── src/                            # React views, components, and API client
-│   │   ├── views/                      # LandingView, DashboardView, AuthView
+│   │   ├── views/                      # LandingView, DashboardView, AuthView, AdminView
 │   │   ├── components/                 # ThreeCanvas, Navbar, Toast
 │   │   └── api/                        # ApiClient for backend communication
 │   ├── public/                         # Public specifications (/llms.txt, robots.txt, sitemap.xml)
 │   ├── styles/                         # CSS design system (variables, layout, components)
 │   ├── dist/                           # Compiled production build
+│   ├── vercel.json                     # Vercel deployment routing
 │   └── package.json                    # Node dependencies & Vite build scripts
 ├── backend/                            # Python Backend Engine & Test Suite
 │   ├── founderreach/                   # Core Python package
 │   │   ├── auth.py                     # PBKDF2 password hashing & JWT authentication
+│   │   ├── admin.py                    # Super Admin telemetry & management APIs
+│   │   ├── billing.py                  # Stripe checkout sessions & revenue tracking
+│   │   ├── db.py                       # Supabase / SQLite unified storage layer
+│   │   ├── rate_limit.py               # Sliding-window IP rate limiter
 │   │   ├── scheduler.py                # APScheduler 6-hour autonomous monitoring worker
 │   │   ├── cli.py                      # CLI (`client-review`, `find`, `verify`, `budget`)
 │   │   ├── client_review.py            # Offline & approved live-site review generator
@@ -79,11 +88,13 @@ founderreach.ai/
 │   ├── profiles/                       # Founder-confirmed product profiles (`scheduleflow.json`)
 │   ├── source_registry/                # Source policies (`hackernews.json`, `hackernews.v1.json`)
 │   ├── reports/                        # Milestone completion reports & spending ledger
-│   └── tests/                          # Full automated test suite (151 tests)
+│   └── tests/                          # Full automated test suite (156 tests passing)
 ├── CLIENT_BOUNDARY_POLICY.md           # Permanent client data & system boundary policy
+├── railway.toml                        # Railway backend deployment manifest
+├── Procfile                            # PaaS web process configuration
 ├── pytest.ini                          # Root pytest configuration
-├── .env.example                        # Safe environment template
-└── .gitignore                          # Git ignore rules
+├── .env.example                        # Production environment template
+└── .gitignore                          # Clean git ignore rules
 ```
 
 ---
@@ -96,7 +107,7 @@ founderreach.ai/
 # Backend Python requirements
 python -m pip install -r backend/requirements.txt
 
-# Frontend Node requirements (optional if using pre-compiled dist)
+# Frontend Node requirements
 cd frontend
 npm install
 npm run build
@@ -109,7 +120,7 @@ From the repository root or `backend/`:
 ```powershell
 python -m pytest -q
 ```
-*(All 151 tests pass cleanly across reachability, SEO/AEO/GEO validation, auth, scheduler, and decision engines)*
+*(All 156 tests pass cleanly across reachability, SEO/AEO/GEO validation, auth, admin, billing, scheduler, and decision engines)*
 
 ### 3. Run the Web Application
 
@@ -127,16 +138,36 @@ npm run dev
 ```
 Open `http://localhost:3005` (proxies `/api` to port 8004).
 
-### 4. Run a Local Client Website Review CLI
+### 4. Admin Access
+Log in via the Sign In modal with your credentials configured in `.env`:
+- **Email:** `ADMIN_EMAIL` (default: `admin@founderreach.ai`)
+- **Password:** `ADMIN_PASSWORD` (configured in `.env`)
+Once authenticated, click **"Admin Console"** in the top navigation bar to access the Super Admin Portal.
 
-```powershell
-$env:PYTHONPATH = "backend"
-python -m founderreach.cli client-review `
-  --profile backend/profiles/scheduleflow.json `
-  --permission live_permission.json `
-  --live-site `
-  --output client_review_report.md
-```
+---
+
+## Deployment Guide
+
+### Frontend Deployment (Vercel)
+1. Import repository on [Vercel](https://vercel.com).
+2. Set **Root Directory** to `frontend`.
+3. Build Command: `npm run build` | Output Directory: `dist`.
+4. Add Environment Variable:
+   - `VITE_API_BASE_URL`: `https://your-railway-app.up.railway.app`
+
+### Backend Deployment (Railway)
+1. Create a new service on [Railway](https://railway.app) from your GitHub repo.
+2. Railway detects [`railway.toml`](railway.toml) and [`Procfile`](Procfile) automatically.
+3. Add Environment Variables in Railway settings:
+   - `ADMIN_EMAIL`: Your secure admin email
+   - `ADMIN_PASSWORD`: Your secure admin password
+   - `JWT_SECRET_KEY`: Random 64-char hex key
+   - `STRIPE_SECRET_KEY`: `sk_live_...`
+   - `STRIPE_PUBLISHABLE_KEY`: `pk_live_...`
+   - `STRIPE_WEBHOOK_SECRET`: `whsec_...`
+   - `SUPABASE_URL`: `https://your-project.supabase.co` (optional)
+   - `SUPABASE_SECRET_KEY`: Service role secret (optional)
+   - `SUPABASE_ENABLED`: `true` (if using Supabase)
 
 ---
 

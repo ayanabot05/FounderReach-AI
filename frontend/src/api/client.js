@@ -150,4 +150,99 @@ export class ApiClient {
     const res = await fetch(`${this.baseUrl}/api/health`);
     return await res.json();
   }
+
+  // Stripe Billing API Methods
+  async createCheckoutSession({ planId, successUrl, cancelUrl, customerEmail }) {
+    const res = await fetch(`${this.baseUrl}/api/billing/create-checkout-session`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({
+        plan_id: planId,
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        customer_email: customerEmail || ""
+      })
+    });
+    if (!res.ok) {
+      let errText = "Checkout creation failed";
+      try {
+        const errJson = await res.json();
+        errText = errJson.detail || errText;
+      } catch (e) {}
+      throw new Error(errText);
+    }
+    return await res.json();
+  }
+
+  // Super Admin API Methods
+  async getAdminStats() {
+    const res = await fetch(`${this.baseUrl}/api/admin/stats`, {
+      headers: this.getAuthHeaders()
+    });
+    if (!res.ok) {
+      let err = "Failed to load admin stats";
+      try {
+        const j = await res.json();
+        err = j.detail || err;
+      } catch (e) {}
+      throw new Error(err);
+    }
+    return await res.json();
+  }
+
+  async getAdminUsers(page = 1, limit = 20, search = "") {
+    const query = new URLSearchParams({ page, limit });
+    if (search) query.set("search", search);
+    const res = await fetch(`${this.baseUrl}/api/admin/users?${query.toString()}`, {
+      headers: this.getAuthHeaders()
+    });
+    if (!res.ok) throw new Error("Failed to load users");
+    return await res.json();
+  }
+
+  async setAdminUserRole(userId, role) {
+    const res = await fetch(`${this.baseUrl}/api/admin/users/${encodeURIComponent(userId)}/role`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ role })
+    });
+    if (!res.ok) {
+      let err = "Failed to update user role";
+      try {
+        const j = await res.json();
+        err = j.detail || err;
+      } catch (e) {}
+      throw new Error(err);
+    }
+    return await res.json();
+  }
+
+  async deleteAdminUser(userId) {
+    const res = await fetch(`${this.baseUrl}/api/admin/users/${encodeURIComponent(userId)}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders()
+    });
+    if (!res.ok) throw new Error("Failed to delete user");
+    return await res.json();
+  }
+
+  async getAdminPayments(page = 1, limit = 20, status = "") {
+    const query = new URLSearchParams({ page, limit });
+    if (status) query.set("status", status);
+    const res = await fetch(`${this.baseUrl}/api/admin/payments?${query.toString()}`, {
+      headers: this.getAuthHeaders()
+    });
+    if (!res.ok) throw new Error("Failed to load payments");
+    return await res.json();
+  }
+
+  async getAdminAudits(page = 1, limit = 20, domain = "") {
+    const query = new URLSearchParams({ page, limit });
+    if (domain) query.set("domain", domain);
+    const res = await fetch(`${this.baseUrl}/api/admin/audits?${query.toString()}`, {
+      headers: this.getAuthHeaders()
+    });
+    if (!res.ok) throw new Error("Failed to load audit logs");
+    return await res.json();
+  }
 }

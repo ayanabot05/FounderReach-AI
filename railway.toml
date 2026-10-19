@@ -1,0 +1,8 @@
+[build]
+builder = "nixpacks"
+buildCommand = "pip install -r backend/requirements.txt"
+
+[deploy]
+startCommand = "PYTHONPATH=backend uvicorn founderreach.web.app:app --host 0.0.0.0 --port ${PORT:-8000}"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10

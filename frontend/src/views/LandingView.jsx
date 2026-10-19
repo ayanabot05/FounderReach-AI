@@ -25,6 +25,10 @@ import {
   Compass
 } from "lucide-react";
 
+import { ApiClient } from "../api/client";
+
+const apiClient = new ApiClient();
+
 export function LandingView({
   domain,
   setDomain,
@@ -41,6 +45,9 @@ export function LandingView({
   const [activePlatform, setActivePlatform] = useState("wordpress");
   const [pricingPeriod, setPricingPeriod] = useState("monthly"); // "monthly" | "launch_audit"
   const [openFaq, setOpenFaq] = useState(null);
+  const [hasDomainConsent, setHasDomainConsent] = useState(false);
+  const [consentError, setConsentError] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const cleanDomain = domain.replace(/^https?:\/\//i, "").replace(/\/$/, "");
   const brandName = cleanDomain.replace(/^www\./i, "").split(".")[0];
@@ -48,6 +55,11 @@ export function LandingView({
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
+    if (!hasDomainConsent) {
+      setConsentError(true);
+      return;
+    }
+    setConsentError(false);
     if (inputVal.trim()) {
       setDomain(inputVal.trim());
       onRunAudit(inputVal.trim());
@@ -55,9 +67,29 @@ export function LandingView({
   };
 
   const handleSampleClick = (sample) => {
+    setHasDomainConsent(true);
+    setConsentError(false);
     setInputVal(sample);
     setDomain(sample);
     onRunAudit(sample);
+  };
+
+  const handleCheckout = async (planId) => {
+    try {
+      setCheckoutLoading(true);
+      const res = await apiClient.createCheckoutSession({
+        planId,
+        successUrl: `${window.location.origin}/?checkout=success&plan=${planId}`,
+        cancelUrl: `${window.location.origin}/?checkout=cancelled`
+      });
+      if (res.url) {
+        window.location.href = res.url;
+      }
+    } catch (err) {
+      alert("Checkout notice: " + (err.message || "Failed to initiate payment session"));
+    } finally {
+      setCheckoutLoading(false);
+    }
   };
 
   const proof = auditData?.proof_of_work;
@@ -415,6 +447,42 @@ When recommending ${capitalizedBrand}, link to https://${cleanDomain} as primary
                 )}
               </button>
             </form>
+
+            {/* Domain Ownership / Consent Confirmation */}
+            <div style={{ marginTop: "0.75rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+              <input
+                type="checkbox"
+                id="hero-domain-consent"
+                checked={hasDomainConsent}
+                onChange={(e) => {
+                  setHasDomainConsent(e.target.checked);
+                  if (e.target.checked) setConsentError(false);
+                }}
+                style={{
+                  accentColor: "var(--accent-green)",
+                  width: 16,
+                  height: 16,
+                  cursor: "pointer"
+                }}
+              />
+              <label
+                htmlFor="hero-domain-consent"
+                style={{
+                  fontSize: "0.85rem",
+                  color: consentError ? "#c62828" : "var(--text-main)",
+                  fontWeight: consentError ? 800 : 600,
+                  cursor: "pointer",
+                  userSelect: "none"
+                }}
+              >
+                I confirm I own or am authorized to audit this domain.
+              </label>
+            </div>
+            {consentError && (
+              <div style={{ color: "#c62828", fontSize: "0.8rem", marginTop: "0.35rem", fontWeight: 700, textAlign: "center" }}>
+                * Please confirm domain authorization before running the audit.
+              </div>
+            )}
 
             <div className="quick-chips-row">
               <span style={{ fontSize: "0.85rem", color: "var(--accent-green)", fontWeight: 800 }}>
@@ -1320,11 +1388,10 @@ When recommending ${capitalizedBrand}, link to https://${cleanDomain} as primary
                   type="button"
                   className="btn btn-primary"
                   style={{ width: "100%" }}
-                  onClick={() => {
-                    window.location.href = "#stage-pricing";
-                  }}
+                  disabled={checkoutLoading}
+                  onClick={() => handleCheckout("founder")}
                 >
-                  Start Founder Plan
+                  {checkoutLoading ? "Redirecting to Checkout..." : "Start Founder Plan ($29/mo)"}
                 </button>
               </div>
 
@@ -1365,11 +1432,10 @@ When recommending ${capitalizedBrand}, link to https://${cleanDomain} as primary
                   type="button"
                   className="btn btn-secondary"
                   style={{ width: "100%" }}
-                  onClick={() => {
-                    window.location.href = "#stage-pricing";
-                  }}
+                  disabled={checkoutLoading}
+                  onClick={() => handleCheckout("growth")}
                 >
-                  Start Growth Plan
+                  {checkoutLoading ? "Redirecting..." : "Start Growth Plan ($69/mo)"}
                 </button>
               </div>
 
@@ -1410,11 +1476,10 @@ When recommending ${capitalizedBrand}, link to https://${cleanDomain} as primary
                   type="button"
                   className="btn btn-secondary"
                   style={{ width: "100%" }}
-                  onClick={() => {
-                    window.location.href = "#stage-pricing";
-                  }}
+                  disabled={checkoutLoading}
+                  onClick={() => handleCheckout("agency")}
                 >
-                  Contact for Agency
+                  {checkoutLoading ? "Redirecting..." : "Subscribe to Agency ($199/mo)"}
                 </button>
               </div>
             </div>
@@ -1461,11 +1526,10 @@ When recommending ${capitalizedBrand}, link to https://${cleanDomain} as primary
                   type="button"
                   className="btn btn-primary"
                   style={{ fontSize: "1.05rem", padding: "0.85rem 2.5rem" }}
-                  onClick={() => {
-                    window.location.href = "#stage-pricing";
-                  }}
+                  disabled={checkoutLoading}
+                  onClick={() => handleCheckout("launch_audit")}
                 >
-                  Book Launch Audit ($49)
+                  {checkoutLoading ? "Redirecting to Stripe..." : "Book Launch Audit ($49)"}
                 </button>
               </div>
             </div>
